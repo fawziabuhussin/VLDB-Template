@@ -32,7 +32,7 @@
 %% textcase itself, so we load it explicitly here.
 \RequirePackage{textcase}
 \makeatletter
-\def\@secfont{\sffamily\bfseries\section@raggedright\MakeTextUppercase}
+\expandafter\def\expandafter\@secfont\expandafter{\@secfont\MakeTextUppercase}
 \makeatother
 
 %% ---------------------------------------------------------------------
@@ -63,25 +63,25 @@
 %% future change to the required PVLDB boilerplate only has to be made once,
 %% here, rather than in every paper's main.tex.
 \newcommand\vldbtopmatter{%
-  \pagestyle{\vldbpagestyle}%
-  \begingroup\small\noindent\raggedright\textbf{PVLDB Reference Format:}\\
-  \vldbauthors. \vldbtitle. PVLDB, \vldbvolume(\vldbissue): \vldbpages, \vldbyear.\\
-  \href{https://doi.org/\vldbdoi}{doi:\vldbdoi}
-  \endgroup
-  \begingroup
-  \renewcommand\thefootnote{}\footnote{\noindent
-  This work is licensed under the Creative Commons BY-NC-ND 4.0 International License. Visit \url{https://creativecommons.org/licenses/by-nc-nd/4.0/} to view a copy of this license. For any use beyond those covered by this license, obtain permission by emailing \href{mailto:info@vldb.org}{info@vldb.org}. Copyright is held by the owner/author(s). Publication rights licensed to the VLDB Endowment. \\
-  \raggedright Proceedings of the VLDB Endowment, Vol. \vldbvolume, No. \vldbissue\ %
-  ISSN 2150-8097. \\
-  \href{https://doi.org/\vldbdoi}{doi:\vldbdoi} \\
-  }\addtocounter{footnote}{-1}\endgroup
-  \par
-  \ifdefempty{\vldbavailabilityurl}{}{%
-  \vspace{.3cm}%
-  \begingroup\small\noindent\raggedright\textbf{PVLDB Artifact Availability:}\\
-  The source code, data, and/or other artifacts have been made available at \url{\vldbavailabilityurl}.
-  \endgroup
-  }%
+	\pagestyle{\vldbpagestyle}%
+	\begingroup\small\noindent\raggedright\textbf{PVLDB Reference Format:}\\
+	\vldbauthors. \vldbtitle. PVLDB, \vldbvolume(\vldbissue): \vldbpages, \vldbyear.\\
+	\href{https://doi.org/\vldbdoi}{doi:\vldbdoi}
+	\endgroup
+	\begingroup
+	\renewcommand\thefootnote{}\footnote{\noindent
+		This work is licensed under the Creative Commons BY-NC-ND 4.0 International License. Visit \url{https://creativecommons.org/licenses/by-nc-nd/4.0/} to view a copy of this license. For any use beyond those covered by this license, obtain permission by emailing \href{mailto:info@vldb.org}{info@vldb.org}. Copyright is held by the owner/author(s). Publication rights licensed to the VLDB Endowment. \\
+		\raggedright Proceedings of the VLDB Endowment, Vol. \vldbvolume, No. \vldbissue\ %
+		ISSN 2150-8097. \\
+		\href{https://doi.org/\vldbdoi}{doi:\vldbdoi} \\
+	}\addtocounter{footnote}{-1}\endgroup
+	\par
+	\ifdefempty{\vldbavailabilityurl}{}{%
+		\vspace{.3cm}%
+		\begingroup\small\noindent\raggedright\textbf{PVLDB Artifact Availability:}\\
+		The source code, data, and/or other artifacts have been made available at \url{\vldbavailabilityurl}.
+		\endgroup
+	}%
 }
 
 \endinput
