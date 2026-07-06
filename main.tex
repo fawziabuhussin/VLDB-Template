@@ -1,24 +1,29 @@
-% VLDB template version of 2020-08-03 enhances the ACM template, version 1.7.0:
+% VLDB-2027-Template enhances the ACM master template, acmart.cls v2.19 (2026/06/27):
 % https://www.acm.org/publications/proceedings-template
 % The ACM Latex guide provides further information about the ACM template
+%
+% This bundle pins acmart.cls v2.19 (rather than relying on whatever version
+% ships with an author's local TeX install or Overleaf project) to guarantee
+% consistent formatting across all PVLDB Vol. 20 submissions.
 
 \documentclass[sigconf, nonacm]{acmart}
 
-%% The following content must be adapted for the final version
-% paper-specific
-\newcommand\vldbdoi{XX.XX/XXX.XX}
-\newcommand\vldbpages{XXX-XXX}
-% issue-specific
-\newcommand\vldbvolume{14}
-\newcommand\vldbissue{1}
-\newcommand\vldbyear{2020}
-% should be fine as it is
-\newcommand\vldbauthors{\authors}
-\newcommand\vldbtitle{\shorttitle} 
+%%% do not modify the following VLDB block %%
+%%% VLDB block start %%%
+\usepackage{vldb2027}% VLDB/PVLDB Vol. 20 formatting overrides (e.g. ALL-CAPS
+                      % section headings); see vldb2027.sty for details.
+                      % Do not remove -- required for consistent proceedings
+                      % formatting across all VLDB 2027 submissions.
+%%% VLDB block end %%%
+
+%% The following must be set for each paper (values below are placeholders).
+%% Everything else (volume/issue/year defaults, the PVLDB Reference Format
+%% block, license footer, and Artifact Availability block) is handled by
+%% vldb2027.sty -- see that file if you need to change shared defaults.
+\renewcommand\vldbdoi{XX.XX/XXX.XX}
+\renewcommand\vldbpages{XXX-XXX}
 % leave empty if no availability url should be set
-\newcommand\vldbavailabilityurl{URL_TO_YOUR_ARTIFACTS}
-% whether page numbers should be shown or not, use 'plain' for review versions, 'empty' for camera ready
-\newcommand\vldbpagestyle{plain} 
+\renewcommand\vldbavailabilityurl{URL_TO_YOUR_ARTIFACTS} 
 
 \begin{document}
 \title{A Relational Model of Data for Large Shared Data Banks}
@@ -31,6 +36,7 @@
   \streetaddress{P.O. Box 1212}
   \city{Dublin}
   \state{Ireland}
+  \country{Ireland}
   \postcode{43017-6221}
 }
 \email{trovato@corporation.com}
@@ -97,28 +103,7 @@ Praesent imperdiet, lacus nec varius placerat, est ex eleifend justo, a vulputat
 
 %%% do not modify the following VLDB block %%
 %%% VLDB block start %%%
-\pagestyle{\vldbpagestyle}
-\begingroup\small\noindent\raggedright\textbf{PVLDB Reference Format:}\\
-\vldbauthors. \vldbtitle. PVLDB, \vldbvolume(\vldbissue): \vldbpages, \vldbyear.\\
-\href{https://doi.org/\vldbdoi}{doi:\vldbdoi}
-\endgroup
-\begingroup
-\renewcommand\thefootnote{}\footnote{\noindent
-This work is licensed under the Creative Commons BY-NC-ND 4.0 International License. Visit \url{https://creativecommons.org/licenses/by-nc-nd/4.0/} to view a copy of this license. For any use beyond those covered by this license, obtain permission by emailing \href{mailto:info@vldb.org}{info@vldb.org}. Copyright is held by the owner/author(s). Publication rights licensed to the VLDB Endowment. \\
-\raggedright Proceedings of the VLDB Endowment, Vol. \vldbvolume, No. \vldbissue\ %
-ISSN 2150-8097. \\
-\href{https://doi.org/\vldbdoi}{doi:\vldbdoi} \\
-}\addtocounter{footnote}{-1}\endgroup
-%%% VLDB block end %%%
-
-%%% do not modify the following VLDB block %%
-%%% VLDB block start %%%
-\ifdefempty{\vldbavailabilityurl}{}{
-\vspace{.3cm}
-\begingroup\small\noindent\raggedright\textbf{PVLDB Artifact Availability:}\\
-The source code, data, and/or other artifacts have been made available at \url{\vldbavailabilityurl}.
-\endgroup
-}
+\vldbtopmatter
 %%% VLDB block end %%%
 
 \section{Introduction}
