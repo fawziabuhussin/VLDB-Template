@@ -1,53 +1,77 @@
 \section{Related Work}
 \label{sec:related}
 
-\paragraph{Aggregated deletion propagation.}
-Hu et al.~\cite{hu2021adp} study minimum source deletions to remove a prescribed
-number of query outputs. In the shared
-setting of full self-join-free queries over duplicate-free relations,
-each full output corresponds to one derivation, so their ADP objective
-is exactly our \agg{COUNT} objective. Their Theorem~6.2 gives
-$O(\log k)$ and relation-count approximations, using partial set cover.
-Bag projection here counts derivation copies;
-set projection coalesces them and can change marginal behavior, as the
-example in Section~\ref{sec:problem} shows. Weighted values, designated deletability, and aggregate validity conditions
-require comparison under their actual semantics.
+\paragraph{Deletion propagation and resilience.}
+Classical deletion propagation asks which source deletions realize a view
+update while controlling source or view side
+effects~\cite{buneman2002deletion,kimelfeld2011deletion}. ADP minimizes
+source deletions needed to remove a prescribed number of
+outputs~\cite{hu2021adp}. For full self-join-free queries in the common
+setting, this is exactly our COUNT objective; their partial-set-cover
+analysis gives logarithmic and relation-count approximations. Here bag
+projection preserves derivation copies, so its coverage behavior also
+survives projection. Set projection can coalesce copies and change that
+behavior, as Section~\ref{sec:problem} illustrates.
 
-% Balance the final page with the class-provided balance package.
-\balance
-\paragraph{Generalized deletion propagation and resilience.}
-Makhija and Gatterbauer~\cite{makhija2025ilp} unify deletion and preservation
-requirements with source and view objectives. Their framework handles
-self-joins and bags and gives ILP formulations with strong relaxation
-properties in known tractable cases. Our survivor constraints and tuple-to-
-derivation linking belong in this established methodological context.
-The aggregate-specific inequalities in Section~\ref{sec:ilp} make our
-threshold semantics explicit; we do not assert that this encoding is
-outside their framework or has the same relaxation properties.
+Generalized deletion propagation unifies deletion, preservation, and
+source/view objectives, including bags and
+self-joins~\cite{makhija2025ilp}. Its ILP methods motivate our shared
+source-to-derivation constraints. Our operator-specific conditions express
+numerical answer thresholds and nonempty inputs; the associated
+relaxations require their own analysis. Setting the COUNT target to full
+loss recovers resilience~\cite{freire2015resilience}. Causal responsibility
+instead singles out a tuple and measures the contingency needed to make
+it critical~\cite{meliou2010causality}. \MIW\ optimizes an intervention
+set without a distinguished cause.
 
-At $\theta=Q(D)>0$, \agg{COUNT} requires destroying all derivations,
-which is query resilience with the same permitted deletions. Freire
-et al.~\cite{freire2015resilience} study resilience as minimum deletions
-making a Boolean conjunctive query false and characterize self-join-free
-query classes. Our reduction uses a self-join and immutability; it neither
-replaces that classification nor extends it to all aggregate queries.
+\paragraph{Provenance, circuits, and attribution.}
+Different provenance notions capture different source
+dependencies~\cite{buneman2001whywhere,cheney2009provenance}. Semiring and
+aggregate provenance supply algebraic models of derivations and
+values~\cite{green2007provenance,amsterdamer2011aggregate}. Circuits can
+represent provenance with sharing~\cite{deutch2014circuits}, and structured
+instances and tractable compilation classes provide efficient
+representations under additional
+conditions~\cite{amarilli2015circuits,amarilli2024tractable}. Our arithmetic
+contract specifies which surviving weighted sum must be available for an
+exact deletion oracle; Boolean query-existence provenance alone does not
+provide that sum.
 
-\paragraph{Provenance and aggregate semantics.}
-Semiring provenance represents the derivational dependence of positive
-queries~\cite{green2007provenance}; aggregate provenance develops the
-corresponding treatment of aggregate values~\cite{amsterdamer2011aggregate}.
-We use fixed derivation values and deletable supports to reason about
-interventions on that dependence. Our Boolean circuit contract is a
-specific operational requirement for exact marginal computation, rather
-than a claim that every provenance representation supplies the same oracle.
-The multilinearity qualification is essential when tuple identifiers recur.
+Shapley and Banzhaf values quantify tuple contributions over coalitions
+rather than optimize a threshold-crossing deletion
+set~\cite{livshits2021shapley,abramovich2024banzhaf}. Abramovich
+et al.~\cite{abramovich2025attribution} extend practical attribution to
+aggregate queries using lifted compilation and lineage gradients. Our
+circuit execution uses the same established differentiation
+principle~\cite{baur1983derivatives}, evaluated at the current deletion
+assignment. Multilinearity makes that derivative equal the finite loss of
+one deletion; repeated tuple variables require a different oracle. Thus
+the distinction lies in the intervention objective, evaluation point, and
+finite-difference condition.
 
-\paragraph{Submodular cover and bounded-rank hitting set.}
-The logarithmic argument specializes the standard greedy analysis for
-submodular covering~\cite{wolsey1982greedy}. The disjoint-support argument
-is the elementary packing bound for bounded-rank hitting set. Our extrema
-analysis uses these ingredients after selecting a survivor, so that an
-otherwise feasible critical cover does not empty the aggregate input.
-This interaction between threshold obligations and preservation matters
-when applying deletion-propagation algorithms to aggregates that exclude
-empty inputs.
+\paragraph{Sensitivity, robustness, and explanations.}
+Local sensitivity for joins maximizes the answer change caused by one
+update~\cite{tao2020sensitivity}. Local ranking stability measures changes
+in position under perturbations of an item's
+values~\cite{campbellLocalStability}. Worst-case data dropping studies how
+removing a small subset changes statistical
+conclusions~\cite{broderick2020dropping,huang2025dropping}. Our objective
+shares this intervention perspective, with explicit join supports and
+aggregate thresholds. Scorpion searches for predicates explaining
+aggregate outliers~\cite{wu2013scorpion}; \MIW\ optimizes the number of
+deleted tuple occurrences. Smallest-witness queries instead minimize a
+retained subdatabase while preserving query
+results~\cite{hu2024smallest}, providing a complementary use of source
+supports.
+
+\paragraph{Repairs and optimization tools.}
+Deletion-based repairs restore integrity constraints under a prescribed
+minimal-change semantics~\cite{chomicki2005minimal,bertossi2011repairs}.
+Such admissibility differs from choosing a permitted deletion set to cross
+an aggregate threshold: a small instability witness need not repair a
+violation or preserve consistency. Repair constraints could be added to
+the ILP, with their semantics stated separately. Our coverage analysis uses
+standard submodular-cover machinery~\cite{wolsey1982greedy}; the lazy
+implementation uses accelerated greedy selection~\cite{minoux1978lazy}.
+The extrema method combines these tools with the elementary disjoint-edge
+packing bound after survivor protection.

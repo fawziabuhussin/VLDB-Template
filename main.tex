@@ -54,12 +54,15 @@ For extrema, a survivor-based feasibility characterization yields a
 $\min\{r,1+\ln m\}$ approximation by combining coverage greedy and
 bounded-rank hitting set; $r$ bounds support size and $m$ counts critical
 derivations. A fixed self-join query establishes NP-completeness of each
-budget decision problem. We give exact tractable cases, a unified integer
-linear formulation, and exact marginal computation through explicit
-supports, query reevaluation, or suitable arithmetic provenance circuits.
+budget decision problem. Singleton supports are tractable for every operator, while sign separation
+yields a constructive coverage subclass for AVG. We give a unified integer
+linear formulation and exact marginal computation through incremental
+supports, query reevaluation, and suitable arithmetic provenance circuits.
 We prove when circuit derivatives equal deletion gains and explain why
-AVG's signed threshold requires separate treatment. The analysis separates
-witness-size guarantees from query-evaluation and representation costs.
+AVG's signed threshold requires separate treatment. A reproducible TPC-H-derived pilot compares these execution choices for
+COUNT, SUM, and AVG, validating all 180 measured witnesses against residual
+SQL and exact arithmetic. The results distinguish witness-size guarantees
+from representation and execution costs.
 \end{abstract}
 
 \maketitle
@@ -73,16 +76,19 @@ witness-size guarantees from query-evaluation and representation costs.
 \label{sec:introduction}
 \input{00_introduction}
 
-% Keep the overview together on the opening page.
-\clearpage
 \input{01_problem}
 \input{03_complexity}
 \input{02_theory}
 \input{04_algorithms}
+\input{07_experiments}
 \input{05_related}
 \input{06_conclusion}
 
+\begingroup
+% Keep individual reference paragraphs together across columns.
+\interlinepenalty=10000
 \bibliographystyle{ACM-Reference-Format}
 \bibliography{references}
+\endgroup
 
 \end{document}

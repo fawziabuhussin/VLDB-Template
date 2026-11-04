@@ -279,6 +279,26 @@ This improves the guarantee of the combined algorithm, not the guarantee
 of coverage greedy by itself. In particular, logarithmic dependence on
 $m$ is not a matching lower bound for fixed queries of bounded support.
 
+\begin{table}[b]
+\centering
+\caption{Approximation guarantees for feasible \MIW\ instances.
+Let $H_C=\lceil\theta\rceil$,
+$H_S=\lceil\theta/\varepsilon\rceil$, and let $m$ count critical
+derivations for the chosen extremum.}
+\label{tab:aggregate-guarantees}
+\small
+\begin{tabular}{@{}lll@{}}
+\toprule
+Aggregate & Method & Size factor\\
+\midrule
+\agg{COUNT} & Derivation coverage & $1+\ln H_C$\\
+\agg{SUM} & Weighted coverage & $1+\ln H_S$\\
+\agg{MAX}, \agg{MIN} & Protected combination & $\min\{r,1+\ln m\}$\\
+\agg{AVG} (general) & --- & Not established\\
+\bottomrule
+\end{tabular}
+\end{table}
+
 \paragraph{Safe reductions of survivor enumeration.}
 Identical safe supports induce identical runs and can be deduplicated.
 It also suffices to retain inclusion-minimal safe supports: if
@@ -296,6 +316,7 @@ stop only if both candidates are valid, keeping the smaller; otherwise
 perform the protected enumeration. An immutable safe derivation makes all
 covers valid, so both unrestricted runs suffice immediately.
 
+\begin{samepage}
 \subsection{Limitations for AVG}
 \label{sec:submod-avg}
 
@@ -315,6 +336,7 @@ $10/3$, and after both it is $0$. Consequently,
 \DeltaQ(b\mid\emptyset)=5/3<10/3=\DeltaQ(b\mid\{a\}).
 \]
 \end{proof}
+\end{samepage}
 
 For a fixed target $\tau_{\downarrow}$, the threshold can nevertheless
 be expressed using derivation-survival indicators $z_b=1-d_b(S)$:
@@ -332,30 +354,14 @@ coverage analysis above does not apply. We establish no general
 greedy approximation guarantee for \agg{AVG}; this does not rule
 out guarantees under additional assumptions.
 
-\begin{table}[t]
-\centering
-\caption{Approximation guarantees for feasible \MIW\ instances.
-Let $H_C=\lceil\theta\rceil$,
-$H_S=\lceil\theta/\varepsilon\rceil$, and let $m$ count critical
-derivations for the chosen extremum.}
-\label{tab:aggregate-guarantees}
-\small
-\begin{tabular}{@{}lll@{}}
-\toprule
-Aggregate & Method & Size factor\\
-\midrule
-\agg{COUNT} & Derivation coverage & $1+\ln H_C$\\
-\agg{SUM} & Weighted coverage & $1+\ln H_S$\\
-\agg{MAX}, \agg{MIN} & Protected combination & $\min\{r,1+\ln m\}$\\
-\agg{AVG} & --- & Not established\\
-\bottomrule
-\end{tabular}
-\end{table}
+
 
 Table~\ref{tab:aggregate-guarantees} summarizes the guarantees.
 The \agg{SUM} bound assumes nonnegative weights in integer multiples
 of $\varepsilon>0$; the combined extrema bound uses both protected methods
 and $r=\max_b|T_b|$. These are witness-size bounds. Enumeration and oracle
-costs depend on representation, as detailed next. The \agg{COUNT} coverage
-method specializes known ADP approximation machinery~\cite{hu2021adp};
-neither it nor the standard submodular-cover theorem is claimed as new.
+costs depend on representation, as detailed next. The coverage baseline specializes ADP and submodular-cover
+machinery~\cite{hu2021adp,wolsey1982greedy}. It isolates the additional
+survivor requirement for extrema and the signed coefficients of AVG.
+The AVG row concerns general instances; Proposition~\ref{prop:avg-separated}
+identifies a subclass with a coverage guarantee.

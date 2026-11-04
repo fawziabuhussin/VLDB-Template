@@ -2,10 +2,8 @@
 \label{sec:complexity}
 
 The \emph{budget decision problem} asks whether a valid instability witness
-of size at most $k$ exists. A coverage representation yields approximation
-upper bounds, but does not establish hardness for a fixed query: arbitrary
-set systems need not arise as that query's derivations. We therefore give
-a query-respecting reduction.
+of size at most $k$ exists. We first establish fixed-query hardness through source sharing, then show
+that singleton supports admit exact algorithms.
 
 \begin{theorem}[Fixed-query hardness]
 \label{thm:hardness}
@@ -45,11 +43,10 @@ uses polynomial time with exact rational arithmetic. Hence the decision
 problem is NP-complete for each operator.
 \end{proof}
 
-The theorem establishes hardness for the stated query and policy, not for
-every fixed query, every self-join-free class, or every choice of deletable
-relations. It also gives no logarithmic inapproximability result. Indeed,
-the supports in this construction have size two, consistent with the
-bounded-rank extrema approximation in Section~\ref{sec:submod-extrema}.
+Only $R$ contains deletable tuples in this construction. Reusing that one
+relation in two atom positions is sufficient for hardness across all five
+operators. Its supports have size two, consistent with the bounded-rank
+extrema approximation in Section~\ref{sec:submod-extrema}.
 
 \begin{proposition}[Singleton-support coverage]
 \label{prop:modular}
@@ -64,9 +61,44 @@ $f(S)=\sum_{t\in S}a_t$. Among sets of any fixed cardinality $k$, the
 $k$ largest $a_t$ attain the greatest possible benefit. The first feasible
 prefix therefore has minimum cardinality.
 \end{proof}
-A sufficient query condition is that the query is self-join-free and only
-one relation contains deletable tuples. Computing the gains remains part
-of the cost; sorting takes $O(n\log n)$ comparisons once they are known.
+The gains can be computed in $O(M+n)$ operations from explicit singleton
+supports, followed by $O(n\log n)$ comparisons for sorting.
+
+\begin{theorem}[Singleton-support tractability]
+\label{thm:single-relation}
+If $|T_b|\le1$ for every derivation, \MIW\ is solvable in polynomial
+time for each of the five aggregates. Consequently, every fixed
+self-join-free query with only one deletable relation is tractable.
+Allowing that relation to occur twice already admits the fixed-query
+NP-complete cases of Theorem~\ref{thm:hardness}.
+\end{theorem}
+\begin{proof}
+Proposition~\ref{prop:modular} handles COUNT and SUM. For an extremum,
+each critical singleton forces its tuple's deletion; an empty critical
+support makes the instance infeasible. The union of forced tuples is
+optimal if any derivation survives, and otherwise no valid witness exists.
+
+For AVG at target $\tau$, write $F_0=\sum_b(v_b-\tau)>0$.
+Let $a_t$ sum $v_b-\tau$ over the derivations with $T_b=\{t\}$.
+Singleton supports give
+\[
+F_\tau(S)=F_0-\sum_{t\in S}a_t.
+\]
+Every feasible witness preserves a derivation $b_0$ with $v_{b_0}\le\tau$.
+Enumerate its possible support, forbid deleting that support, sort the
+remaining positive $a_t$ in descending order, and take the shortest
+prefix whose sum reaches $F_0$. This is exact for that protected domain:
+nonpositive gains never help, and the largest gains maximize benefit for
+each cardinality. Taking the smallest feasible prefix over survivors is
+therefore globally optimal. At most $n+1$ distinct singleton or empty
+supports are protected. One initial sort and a scan per protected support
+take $O(M+n\log n+n^2)$ operations and comparisons.
+\end{proof}
+This is a boundary of uniform tractability under a syntactic restriction:
+all queries on the self-join-free side are tractable, while the expanded
+class contains hard queries. Individual queries with self-joins can still
+be tractable. The following independent-row case gives a faster AVG
+algorithm when every deletable group has exactly one row.
 
 \begin{proposition}[Independent-row averages]
 \label{prop:avg-rows}

@@ -1,0 +1,32 @@
+{
+  "python": "3.9.6 (default, Dec  2 2025, 07:27:58) \n[Clang 17.0.0 (clang-1700.6.3.2)]",
+  "platform": "macOS-26.6.2-arm64-arm-64bit",
+  "processor": "Apple M5",
+  "duckdb": "1.4.3",
+  "pulp": "3.3.0",
+  "solver": "HiGHS",
+  "solver_version": "1.12.0",
+  "threads": 1,
+  "time_limit_s": 5,
+  "repetitions": 3,
+  "seed": 1729,
+  "sql_body": "from customer c join orders o on c.c_custkey=o.o_custkey\njoin lineitem l on o.o_orderkey=l.l_orderkey\njoin part p on l.l_partkey=p.p_partkey\nwhere l.l_shipdate >= date '1995-01-01' and l.l_shipdate < date '1995-02-01'",
+  "value": "cast(l.l_extendedprice*100 as bigint)",
+  "script_sha256": "7194980ecf67a9665844aaba8a9a9fe4cc06a66e099794a12c477f5d9ea88f52",
+  "inputs": [
+    {
+      "filename": "tpch_sf_0_01.duckdb",
+      "sha256": "dc661cb9d87c0dfdcda0e03cad919d96ee7b4ba00506f735db5ce5d38a4f18a6",
+      "derivations": 714,
+      "deletable_tuples": 949,
+      "extraction_s": 0.006848583000000019
+    },
+    {
+      "filename": "tpch_sf_0_03.duckdb",
+      "sha256": "b758feb6321c615fdb950611131dc0b3ff4fc9f0107b3edeb15d3e08f5d53d66",
+      "derivations": 2358,
+      "deletable_tuples": 3128,
+      "extraction_s": 0.006306958999999779
+    }
+  ]
+}

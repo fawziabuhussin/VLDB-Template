@@ -71,10 +71,10 @@ It is polynomial in the explicit-derivation representation, not necessarily
 in a supplied compact circuit. It provides an exact baseline when solved
 to proven optimality. A timed-out feasible solution is an upper bound on
 optimum; a solver's certified lower bound is needed to quantify its gap.
-The use of deletion and witness variables follows established deletion
-propagation ILP methodology~\cite{makhija2025ilp}; we do not claim the
-existence of such an encoding as a new optimization technique, or transfer
-integral-relaxation results to this formulation without proof.
+Following deletion-propagation ILP methodology~\cite{makhija2025ilp},
+the shared linking constraints express source dependence, while the
+aggregate-specific inequalities express threshold and survivor obligations.
+Relaxation strength is a separate property of the chosen encoding.
 
 \subsection{Explicit Supports and Incremental Coverage}
 \label{sec:explicit-greedy}
@@ -145,8 +145,8 @@ bound and continue. Since true gains can only decrease, that acceptance
 condition certifies an actual maximum marginal. Fixing a common tuple
 order resolves ties consistently with ordinary greedy. Refreshing each
 tuple at most once per iteration gives the same $O(n^2)$ worst-case oracle
-bound, with additional queue overhead; fewer evaluations are a possible
-practical benefit, not a worst-case improvement established here.
+bound, with queue overhead. Section~\ref{sec:experiments} measures its practical
+behavior alongside the explicit-support and circuit implementations.
 
 Restricting candidates to an uncertified active set, using estimated gains,
 or accepting a tuple before this maximum test defines a heuristic. Such
@@ -169,8 +169,10 @@ P(y)=\sum_{b\in\B}w_b\prod_{t\in T_b}y_t
 Here $y_t=0$ denotes deletion. The contract may be instantiated for SUM,
 COUNT, or critical COUNT. Constructing a compact circuit satisfying it
 is a separate task; an arbitrary circuit for query existence is
-insufficient. This arithmetic representation is motivated by semiring
-provenance~\cite{green2007provenance}.
+insufficient. This representation builds on semiring provenance and provenance
+circuits~\cite{green2007provenance,deutch2014circuits}. Knowledge compilation supplies additional circuit
+structure~\cite{amarilli2015circuits,amarilli2024tractable}. Our contract
+specifies the surviving weighted sum needed by the deletion oracle.
 
 A topological evaluation takes $O(c)$ arithmetic operations. At the
 assignment $y^S$ encoding the current deletions, exact marginal gains are
@@ -184,6 +186,16 @@ polynomial. Protected runs fix the survivor's inputs to one and exclude
 them from deletion candidates. Arithmetic complexity excludes circuit
 construction and must be augmented by operand bit lengths. The contract
 alone does not bound those lengths for arbitrary supplied circuits.
+
+\paragraph{Connection to gradient-based attribution.}
+Abramovich et al.~\cite{abramovich2025attribution} use lifted compilation
+and lineage gradients to compute Banzhaf and Shapley contributions for
+aggregate queries. Their derivatives summarize marginal contributions over
+coalitions. Here we evaluate a surviving-contribution polynomial at the
+current Boolean deletion assignment and need its finite loss when one
+input changes from one to zero. The next proposition identifies when this
+particular loss equals the ordinary partial derivative; reverse-mode
+computation itself follows the established differentiation approach.
 
 \begin{proposition}[Exact derivatives for multilinear circuits]
 \label{prop:gradient}
@@ -213,7 +225,13 @@ self-join may contain $y_t^2$: its values at zero and one represent one
 surviving derivation, but its derivative at one is two, whereas the
 actual deletion loss is one. Ordinary differentiation therefore need
 not compute exact gains for self-joins. Direct reevaluation via
-Equation~\eqref{eq:circuit-difference} remains correct.
+Equation~\eqref{eq:circuit-difference} remains correct. This connects two
+roles of source reuse: a self-join can couple deletion choices enough to
+produce the hardness in Theorem~\ref{thm:hardness}, and repeated use of the
+same tuple can also break the derivative identity. The conditions are
+distinct: multiple deletable relations can create hard optimization even
+with multilinear provenance, and not every self-join repeats a tuple
+within a derivation.
 
 The usual derivation polynomial of a self-join-free query is multilinear
 in tuple identifiers. A sufficient circuit-level certificate is that, at
@@ -240,6 +258,46 @@ threshold gain. Signed weights invalidate the monotone-coverage argument.
 A run may stall without proving infeasibility, so the ILP is the exact
 fallback when a certificate is required. Independent-row instances instead
 use Proposition~\ref{prop:avg-rows}.
+
+\paragraph{A constructive coverage subclass.}
+Let $\B_- =\{b:v_b<\tau\}$ and define
+\[
+U_+=\{t\in\Del:\ t\notin T_b\text{ for every }b\in\B_-\}.
+\]
+For deletions restricted to $U_+$, all destroyed coefficients $v_b-\tau$
+are nonnegative. If $\B_-\ne\emptyset$, those negative-coefficient
+derivations also supply an automatic survivor.
+
+\begin{proposition}[Sign-separated AVG]
+\label{prop:avg-separated}
+Suppose $\B_-\ne\emptyset$ and no deletable tuple belongs to both a
+derivation above $\tau$ and a derivation below $\tau$. Then restricting
+deletions to $U_+$ preserves the global optimum. On a feasible instance,
+coverage greedy returns a witness with factor $1+\ln H$, where
+$H=\lceil F_\tau(\emptyset)/\varepsilon\rceil$ and all coefficients
+$v_b-\tau$ are integer multiples of $\varepsilon>0$.
+\end{proposition}
+\begin{proof}
+A tuple outside $U_+$ touches a below-target derivation and, by the
+assumption, touches no above-target derivation. Remove all such tuples
+from any feasible deletion set. This restores only derivations with
+nonpositive coefficient, so $F_\tau$ cannot increase and the survivor
+bag remains nonempty. Hence an optimum exists within $U_+$.
+On this ground set,
+\[
+G(S)=F_\tau(\emptyset)-F_\tau(S)
+\]
+is nonnegative weighted coverage. Every below-target derivation survives,
+and $G(S)\ge F_\tau(\emptyset)$ is exactly the AVG threshold.
+Theorem~\ref{thm:general-greedy} applies after scaling by $\varepsilon$.
+\end{proof}
+For a user-imposed domain contained in $U_+$, the same coverage argument
+holds relative to its restricted optimum, even without sign separation.
+If $\B_-=\emptyset$, the target instead requires destroying every
+strictly above-target derivation and preserving a derivation equal to
+$\tau$. This is precisely the protected-extrema formulation and inherits
+Theorem~\ref{thm:extrema-rank}. Thus a nonnegative gain condition and
+nonemptiness must be considered together.
 
 Every returned candidate should be checked against the original residual
 query with the prescribed bag semantics, deletability policy, and empty-input
