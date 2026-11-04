@@ -1,0 +1,53 @@
+\section{Related Work}
+\label{sec:related}
+
+\paragraph{Aggregated deletion propagation.}
+Hu et al.~\cite{hu2021adp} study minimum source deletions to remove a prescribed
+number of query outputs. In the shared
+setting of full self-join-free queries over duplicate-free relations,
+each full output corresponds to one derivation, so their ADP objective
+is exactly our \agg{COUNT} objective. Their Theorem~6.2 gives
+$O(\log k)$ and relation-count approximations, using partial set cover.
+Bag projection here counts derivation copies;
+set projection coalesces them and can change marginal behavior, as the
+example in Section~\ref{sec:problem} shows. Weighted values, designated deletability, and aggregate validity conditions
+require comparison under their actual semantics.
+
+% Balance the final page with the class-provided balance package.
+\balance
+\paragraph{Generalized deletion propagation and resilience.}
+Makhija and Gatterbauer~\cite{makhija2025ilp} unify deletion and preservation
+requirements with source and view objectives. Their framework handles
+self-joins and bags and gives ILP formulations with strong relaxation
+properties in known tractable cases. Our survivor constraints and tuple-to-
+derivation linking belong in this established methodological context.
+The aggregate-specific inequalities in Section~\ref{sec:ilp} make our
+threshold semantics explicit; we do not assert that this encoding is
+outside their framework or has the same relaxation properties.
+
+At $\theta=Q(D)>0$, \agg{COUNT} requires destroying all derivations,
+which is query resilience with the same permitted deletions. Freire
+et al.~\cite{freire2015resilience} study resilience as minimum deletions
+making a Boolean conjunctive query false and characterize self-join-free
+query classes. Our reduction uses a self-join and immutability; it neither
+replaces that classification nor extends it to all aggregate queries.
+
+\paragraph{Provenance and aggregate semantics.}
+Semiring provenance represents the derivational dependence of positive
+queries~\cite{green2007provenance}; aggregate provenance develops the
+corresponding treatment of aggregate values~\cite{amsterdamer2011aggregate}.
+We use fixed derivation values and deletable supports to reason about
+interventions on that dependence. Our Boolean circuit contract is a
+specific operational requirement for exact marginal computation, rather
+than a claim that every provenance representation supplies the same oracle.
+The multilinearity qualification is essential when tuple identifiers recur.
+
+\paragraph{Submodular cover and bounded-rank hitting set.}
+The logarithmic argument specializes the standard greedy analysis for
+submodular covering~\cite{wolsey1982greedy}. The disjoint-support argument
+is the elementary packing bound for bounded-rank hitting set. Our extrema
+analysis uses these ingredients after selecting a survivor, so that an
+otherwise feasible critical cover does not empty the aggregate input.
+This interaction between threshold obligations and preservation matters
+when applying deletion-propagation algorithms to aggregates that exclude
+empty inputs.

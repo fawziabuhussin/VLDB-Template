@@ -1,0 +1,92 @@
+\section{Complexity and Tractable Cases}
+\label{sec:complexity}
+
+The \emph{budget decision problem} asks whether a valid instability witness
+of size at most $k$ exists. A coverage representation yields approximation
+upper bounds, but does not establish hardness for a fixed query: arbitrary
+set systems need not arise as that query's derivations. We therefore give
+a query-respecting reduction.
+
+\begin{theorem}[Fixed-query hardness]
+\label{thm:hardness}
+For each of \agg{COUNT}, \agg{SUM}, \agg{MAX}, \agg{MIN}, and \agg{AVG},
+the budget decision problem is NP-complete in data complexity for the
+fixed body
+\[
+R(x)\Join E(x,y,A)\Join R(y).
+\]
+This holds with values in $\{0,1\}$, designated immutable tuples, and a
+self-join of $R$.
+\end{theorem}
+\begin{proof}
+Reduce from Vertex Cover on a simple undirected graph $G=(V,E_G)$ with
+at least one edge. Orient each edge once. Create a deletable tuple $R(v)$
+for each vertex and an immutable tuple $E(u,v,1)$ for each oriented edge.
+There is exactly one derivation per edge, with support
+$\{R(u),R(v)\}$. A deletion set destroys every such derivation exactly
+when its vertices form a vertex cover.
+
+For \agg{COUNT} and \agg{SUM}(A), choose $\theta=|E_G|$. The target
+is zero, so the equivalence follows directly. For \agg{MAX} and
+\agg{AVG}, add fresh vertices $p,q$, immutable $R(p),R(q)$, and
+immutable $E(p,q,0)$. This creates one permanently surviving zero-valued
+derivation and no additional joins. For \agg{MAX}, use $\theta=1$.
+For \agg{AVG}, use $\theta=|E_G|/(|E_G|+1)$, the initial average.
+In either case, the target is zero and is reached precisely when every
+graph-edge derivation is destroyed. For \agg{MIN}, instead give all
+graph edges value zero and the permanent edge value one; choose
+$\theta=1$. Reaching minimum one again requires destroying every graph
+edge. In every construction, feasible deletion sets and vertex covers
+have the same cardinalities, and the encoding has polynomial size.
+
+For membership in NP, a certificate lists at most $k$ deletable tuples.
+Evaluation of this fixed query, the aggregate, and the validity condition
+uses polynomial time with exact rational arithmetic. Hence the decision
+problem is NP-complete for each operator.
+\end{proof}
+
+The theorem establishes hardness for the stated query and policy, not for
+every fixed query, every self-join-free class, or every choice of deletable
+relations. It also gives no logarithmic inapproximability result. Indeed,
+the supports in this construction have size two, consistent with the
+bounded-rank extrema approximation in Section~\ref{sec:submod-extrema}.
+
+\begin{proposition}[Singleton-support coverage]
+\label{prop:modular}
+For \agg{COUNT} or nonnegative \agg{SUM}, if $|T_b|\le1$ for every
+$b$, sorting deletable tuples by their initial marginal gains and taking
+the shortest prefix reaching the threshold is optimal. Infeasibility is
+detected by the total available gain.
+\end{proposition}
+\begin{proof}
+Put $a_t=\sum_{b:T_b=\{t\}}w_b$. The benefit is modular:
+$f(S)=\sum_{t\in S}a_t$. Among sets of any fixed cardinality $k$, the
+$k$ largest $a_t$ attain the greatest possible benefit. The first feasible
+prefix therefore has minimum cardinality.
+\end{proof}
+A sufficient query condition is that the query is self-join-free and only
+one relation contains deletable tuples. Computing the gains remains part
+of the cost; sorting takes $O(n\log n)$ comparisons once they are known.
+
+\begin{proposition}[Independent-row averages]
+\label{prop:avg-rows}
+For a bag of numeric rows, with each deletable row contributing exactly
+one aggregate input independently of other rows, downward \agg{AVG}
+\MIW\ is solvable by sorting and scanning prefixes in $O(N+n\log n)$
+arithmetic operations and comparisons, where $N$ is the total row count.
+\end{proposition}
+\begin{proof}
+Sort deletable values as $u_1\ge\cdots\ge u_n$. Let $V$ be the initial
+sum. For a fixed deletion count $k<N$, the remaining denominator is
+$N-k$, so deleting the largest $k$ values minimizes the remaining
+average. Check
+\[
+V-\sum_{i=1}^k u_i\ \le\ \tau_{\downarrow}(N-k)
+\]
+for each $k\le n$ with $k<N$, and return the first feasible prefix.
+If none succeeds, no feasible deletion set exists. One pass computes the
+initial sum and prefix sums after sorting. The restriction $k<N$
+ensures nonemptiness, including when every row is deletable.
+\end{proof}
+This case has no joins or shared supports. It illustrates why the failure
+of AVG submodularity alone is not a hardness proof.

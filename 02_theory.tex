@@ -1,0 +1,361 @@
+\section{Coverage and Approximation}
+\label{sec:theory}
+\label{sec:aggregate-submodularity}
+
+We establish the coverage structure underlying greedy approximation
+for \MIW, then examine the aggregate operators to which it applies.
+
+\subsection{Weighted Coverage for COUNT and SUM}
+\label{sec:submod-count-sum}
+
+For a set function $f:2^{\Del}\to\mathbb{R}$, denote the marginal gain of
+deleting $t\notin S$ by $f(t\mid S)=f(S\cup\{t\})-f(S)$.
+The function is \emph{normalized} if $f(\emptyset)=0$ and \emph{monotone}
+if $f(A)\le f(B)$ whenever $A\subseteq B$. It is \emph{submodular} if
+\begin{equation}
+\label{eq:submodularity}
+f(t\mid A)\ge f(t\mid B)
+\qquad(A\subseteq B,\ t\notin B).
+\end{equation}
+Submodularity expresses diminishing returns: a tuple cannot destroy more
+previously surviving contribution after additional tuples have been deleted.
+
+For each derivation $b$, define its destruction indicator
+$d_b(S)=\mathbf{1}[S\cap T_b\ne\emptyset]$. Assign weight $w_b=1$ for
+\agg{COUNT} and $w_b=v_b\ge0$ for \agg{SUM}. The deletion benefit is
+\begin{equation}
+\label{eq:weighted-coverage}
+f(S)=\DeltaQ(S)=\sum_{b\in\B}w_b d_b(S).
+\end{equation}
+Each destroyed derivation contributes its weight once, even if several
+deleted tuples occur in it. A derivation with $T_b=\emptyset$ cannot be
+destroyed and contributes nothing to $f$.
+
+\begin{theorem}[Weighted coverage]
+\label{thm:weighted-coverage}
+For \agg{COUNT} and nonnegative \agg{SUM} over positive SPJ queries
+under bag semantics, the deletion-benefit function is normalized,
+monotone, and submodular.
+\end{theorem}
+\begin{proof}
+Normalization follows from $d_b(\emptyset)=0$. If $A\subseteq B$, every
+derivation destroyed by $A$ is also destroyed by $B$, proving monotonicity.
+For any $S\subseteq\Del$ and $t\notin S$, the marginal gain is
+\begin{equation}
+\label{eq:coverage-marginal}
+f(t\mid S)=\sum_{b\in\B(S):\,t\in T_b}w_b.
+\end{equation}
+Every derivation surviving $B$ also survives $A\subseteq B$. Hence, the
+sum defining $f(t\mid B)$ contains a subset of the terms defining
+$f(t\mid A)$. Nonnegative weights give~\eqref{eq:submodularity}.
+\end{proof}
+
+Consequently, a \agg{COUNT} or nonnegative \agg{SUM} instance is
+feasible exactly when $f(\Del)\ge\theta$. Arbitrary overlap between
+derivations does not affect the theorem. Nonnegativity is essential:
+for signed \agg{SUM}, deleting a negative contribution can increase
+the answer, and the coverage argument need not give monotonicity or
+submodularity. For example, one derivation of weight $-1$ and support
+$\{a,b\}$ gives $f(b\mid\emptyset)=-1<0=f(b\mid\{a\})$.
+
+\subsection{Greedy Approximation}
+\label{sec:submod-greedy}
+
+Starting from $S_0=\emptyset$, marginal-gain greedy repeatedly chooses
+\begin{equation}
+\label{eq:greedy-choice}
+t_i\in\arg\max_{t\in\Del\setminus S_i}f(t\mid S_i),
+\qquad S_{i+1}=S_i\cup\{t_i\},
+\end{equation}
+until the threshold is met. We use a standard bound for
+submodular cover~\cite{wolsey1982greedy}; the proof makes the
+integrality assumption explicit.
+
+\begin{theorem}[Greedy submodular cover]
+\label{thm:general-greedy}
+Let $f:2^U\to\mathbb{Z}_{\ge0}$ be normalized, monotone, and submodular,
+and let $H\ge1$ be an integer with $f(U)\ge H$.
+If $S^\star$ is a smallest set satisfying $f(S^\star)\ge H$, greedy
+returns a set $S_g$ such that
+\begin{equation}
+\label{eq:general-greedy-bound}
+|S_g|\le(1+\ln H)|S^\star|.
+\end{equation}
+\end{theorem}
+\begin{proof}
+Let $k=|S^\star|\ge1$ and, before termination, let
+$r_i=H-f(S_i)>0$. Monotonicity and submodularity imply
+\[
+\begin{aligned}
+r_i&\le f(S_i\cup S^\star)-f(S_i)\\
+&\le\sum_{t\in S^\star\setminus S_i}f(t\mid S_i).
+\end{aligned}
+\]
+There are at most $k$ terms, so some remaining optimal element has
+marginal gain at least $r_i/k$. Greedy obtains at least this gain;
+if it continues, $r_{i+1}\le r_i(1-1/k)$. Thus, after $i$ iterations
+that have not reached the threshold, $0<r_i\le H e^{-i/k}$.
+For $i=\lfloor k\ln H\rfloor+1$, this upper bound is less than $1$,
+contradicting the integrality of $r_i$. Therefore,
+$|S_g|\le\lfloor k\ln H\rfloor+1\le k(1+\ln H)$.
+\end{proof}
+
+For \agg{COUNT}, use $H=\lceil\theta\rceil$ because $f$ is
+integer-valued. For \agg{SUM}, suppose the weights are nonnegative
+integer multiples of a common unit $\varepsilon>0$. Scaling the
+benefit by $1/\varepsilon$ preserves greedy choices and gives the
+integer threshold $H=\lceil\theta/\varepsilon\rceil$. Since
+$f(S)/\varepsilon$ is integral, $f(S)\ge\theta$ is equivalent to
+$f(S)/\varepsilon\ge H$; rounding therefore preserves every feasible
+witness and the optimum. The respective
+approximation factors are therefore
+\begin{equation}
+\label{eq:count-sum-bound}
+1+\ln\lceil\theta\rceil
+\quad\text{and}\quad
+1+\ln\lceil\theta/\varepsilon\rceil.
+\end{equation}
+When the threshold is aligned with the unit, the ceiling can be
+omitted. These numerical bounds require the stated discrete units;
+submodularity alone does not justify replacing an arbitrary real-valued
+threshold by $\theta$ inside the logarithm. The result concerns
+minimum-cardinality cover, where the number of deletions is minimized
+subject to a target benefit. Binary rational weights admit a common exact
+unit, but the resulting bound can depend on numerical precision. Choosing
+a smaller unit weakens the certificate without changing the greedy choices.
+The algorithm still makes at most $n$ deletions.
+
+\subsection{Critical Derivations for MAX and MIN}
+\label{sec:submod-extrema}
+
+The numerical change in an extremum need not be submodular, even
+without joins.
+\begin{example}
+\label{ex:max-nonsubmodular}
+Consider a \agg{MAX} query on values $10,10,1$, where only the
+first two tuples, $a$ and $b$, are deletable. Deleting either alone
+leaves the maximum unchanged, but deleting both reduces it by $9$.
+Thus, $\DeltaQ(b\mid\emptyset)=0<9=\DeltaQ(b\mid\{a\})$.
+For \agg{MIN}, the values $1,1,10$, with only the two minimum-valued
+tuples deletable, give the same violation for the upward benefit.
+Both examples retain a nonempty input after every permitted deletion.
+\end{example}
+
+Instead of measuring the immediate numerical change, fix the target
+and identify its \emph{critical derivations}:
+\begin{equation}
+\label{eq:critical-derivations}
+\B_{\mathrm{crit}}=
+\begin{cases}
+\{b\in\B:v_b>\tau_{\downarrow}\}, & \text{for \agg{MAX}},\\
+\{b\in\B:v_b<\tau_{\uparrow}\}, & \text{for \agg{MIN}}.
+\end{cases}
+\end{equation}
+Let $m=|\B_{\mathrm{crit}}|$ and define
+$h(S)=\sum_{b\in\B_{\mathrm{crit}}}d_b(S)$.
+This counts destroyed critical derivations. By the weighted-coverage
+argument, $h$ is normalized, monotone, integer-valued, and submodular.
+
+\begin{lemma}[Threshold--coverage equivalence]
+\label{lem:extrema-equivalence}
+For \agg{MAX} or \agg{MIN} and any $S\subseteq\Del$ with
+$\B(S)\ne\emptyset$, the required threshold is met if and only if
+$h(S)=m$.
+\end{lemma}
+\begin{proof}
+The maximum is at most $\tau_{\downarrow}$ exactly when no surviving
+derivation has a value above it. The minimum is at least
+$\tau_{\uparrow}$ exactly when no surviving derivation has a value
+below it. In each case, every critical derivation must be destroyed.
+\end{proof}
+
+This gives a hitting-set interpretation: select as few deletable tuples
+as possible while intersecting every critical support $T_b$. A critical
+derivation with $T_b=\emptyset$ makes the instance infeasible.
+Covering all critical derivations, however, does not by itself ensure
+a nonempty aggregate input.
+
+\paragraph{Preserving a surviving derivation.}
+Let $\B_{\mathrm{safe}}=\B\setminus\B_{\mathrm{crit}}$.
+For every $b_0\in\B_{\mathrm{safe}}$, restrict deletions to
+\begin{equation}
+\label{eq:protected-derivation}
+\Del^{b_0}=\Del\setminus T_{b_0}.
+\end{equation}
+Every $S\subseteq\Del^{b_0}$ preserves $b_0$.
+
+\begin{lemma}[Extrema feasibility]
+\label{lem:extrema-feasibility}
+An extrema witness exists if and only if some $b_0\in\B_{\mathrm{safe}}$
+satisfies $T_b\setminus T_{b_0}\ne\emptyset$ for every
+$b\in\B_{\mathrm{crit}}$.
+\end{lemma}
+\begin{proof}
+A valid witness preserves some safe $b_0$ and must hit every critical
+support using tuples outside $T_{b_0}$, proving necessity. Conversely,
+deleting all of $\Del\setminus T_{b_0}$ hits every critical support under
+the stated condition and leaves $b_0$ alive.
+\end{proof}
+Thus $h(\Del^{b_0})=m$ tests a protected run's feasibility before
+optimization. A nonempty safe set and individually deletable critical
+derivations do not suffice: in $R(K)\Join V(K,A)$, let the sole deletable
+tuple be $R(1)$ and let $V(1,10),V(1,0)$ be immutable. For \agg{MAX}
+with target zero, deleting the critical derivation also deletes the only
+safe derivation. No valid witness exists. Adding deletable $R(2)$ and
+immutable $V(2,0)$ makes the instance feasible, but only protecting the
+key-2 derivation permits the needed deletion. Choosing an arbitrary safe
+survivor is therefore incomplete.
+
+Run marginal-gain greedy
+for $h$ on each restricted ground set, retaining only runs that reach
+$h(S)=m$, and return the smallest result. Reject a run if $h(\Del^{b_0})<m$. Otherwise it cannot stall: an
+unhit critical support contains an allowed tuple of positive gain.
+If no run succeeds, report that no witness exists.
+
+\begin{theorem}[Greedy approximation for extrema]
+\label{thm:extrema-greedy}
+For a feasible \agg{MAX} or \agg{MIN} instance with $\theta>0$,
+protected-derivation greedy returns a valid witness $S_g$ satisfying
+\begin{equation}
+\label{eq:extrema-greedy-bound}
+|S_g|\le(1+\ln m)|S^\star|,
+\end{equation}
+where $S^\star$ is an optimal witness and $m\ge1$ is the number of
+critical derivations. Here $m\ge1$ follows from $\theta>0$ and the defined
+initial extremum; if no safe derivation exists the instance is infeasible.
+\end{theorem}
+\begin{proof}
+An optimal valid witness leaves some derivation $b^\star$ alive.
+Since it reaches the threshold, that derivation is noncritical.
+Hence, $S^\star\cap T_{b^\star}=\emptyset$, so
+$S^\star\subseteq\Del^{b^\star}$. The restricted coverage instance
+protecting $b^\star$ is therefore feasible and has optimum at most
+$|S^\star|$. Restricting the ground set preserves submodularity.
+Theorem~\ref{thm:general-greedy} with $H=m$ bounds the result of this
+run by $(1+\ln m)|S^\star|$. Returning the smallest successful run
+cannot increase its size, and every retained run preserves its
+protected derivation.
+\end{proof}
+
+The guarantee concerns critical-coverage greedy with protected
+derivations, rather than greedy based on the numerical change in the
+extremum. No immutable surviving derivation is assumed. Enumeration
+can require one run per noncritical derivation; the theorem bounds
+witness size and does not assert that this enumeration is efficient
+for a compressed provenance representation.
+
+\paragraph{Bounded-support alternative.}
+Let $r=\max_{b\in\B}|T_b|$, which is at most the number of relation-atom
+occurrences. For a fixed protected survivor $b_0$, form the reduced
+critical supports $E_b=T_b\setminus T_{b_0}$. Reject empty reduced
+supports. Scan the remaining supports, adding a support to a family
+whenever it is disjoint from all previously added supports. Return the
+union of this maximal disjoint family. This is the standard packing
+argument for bounded-rank hitting set, applied after survivor protection.
+
+\begin{theorem}[Combined extrema guarantee]
+\label{thm:extrema-rank}
+For a feasible extrema instance, run both protected coverage greedy and
+the disjoint-support algorithm over the safe survivors, and return the
+smallest result. The output satisfies
+\[
+|S_{\mathrm{out}}|\le\min\{r,1+\ln m\}|S^\star|.
+\]
+\end{theorem}
+\begin{proof}
+Fix a feasible protected instance. Maximality of the disjoint family
+$E_1,\ldots,E_\ell$ means every reduced critical support intersects its
+union. The union therefore covers all critical derivations and avoids
+$T_{b_0}$. Every feasible hitting set must include at least one distinct
+tuple from each disjoint $E_j$, so its size is at least $\ell$. The union
+has size at most $r\ell$, giving an $r$-approximation for this instance.
+Protect a derivation surviving a global optimum. That optimum is allowed
+in the protected instance, and every feasible protected cover is an original
+witness, so their optimum sizes agree. Enumeration supplies the global
+$r$ bound; Theorem~\ref{thm:extrema-greedy} supplies the logarithmic bound.
+Keeping the smallest result gives their minimum.
+\end{proof}
+This improves the guarantee of the combined algorithm, not the guarantee
+of coverage greedy by itself. In particular, logarithmic dependence on
+$m$ is not a matching lower bound for fixed queries of bounded support.
+
+\paragraph{Safe reductions of survivor enumeration.}
+Identical safe supports induce identical runs and can be deduplicated.
+It also suffices to retain inclusion-minimal safe supports: if
+$T_{b_0}\subseteq T_{b_1}$, every cover protecting $b_1$ is allowed when
+protecting $b_0$. For an optimal witness preserving $b_1$, replacing its
+protected support by an inclusion-minimal subset therefore retains that
+witness in a run. This proves preservation of the global optimum comparison;
+it does not imply that two greedy runs return solutions ordered by size.
+
+One may first run unrestricted critical-coverage greedy. If its result
+preserves a derivation, it is a valid witness with the logarithmic bound,
+since unrestricted optimum is no larger than valid optimum. For the
+combined bound, run the unrestricted disjoint-support algorithm too and
+stop only if both candidates are valid, keeping the smaller; otherwise
+perform the protected enumeration. An immutable safe derivation makes all
+covers valid, so both unrestricted runs suffice immediately.
+
+\subsection{Limitations for AVG}
+\label{sec:submod-avg}
+
+\begin{proposition}
+\label{prop:avg-nonsubmodular}
+The numerical deletion benefit of \agg{AVG} need not be monotone
+or submodular, even on deletion sets preserving a nonempty input.
+\end{proposition}
+\begin{proof}
+For non-monotonicity, consider values $0,10$, with only the zero-valued
+tuple deletable. Deleting it increases the average from $5$ to $10$,
+so its downward benefit is $-5$. For non-submodularity, consider
+values $10,10,0,0$, with only the two high-valued tuples $a,b$
+deletable. The initial average is $5$; after either deletion it is
+$10/3$, and after both it is $0$. Consequently,
+\[
+\DeltaQ(b\mid\emptyset)=5/3<10/3=\DeltaQ(b\mid\{a\}).
+\]
+\end{proof}
+
+For a fixed target $\tau_{\downarrow}$, the threshold can nevertheless
+be expressed using derivation-survival indicators $z_b=1-d_b(S)$:
+\begin{equation}
+\label{eq:avg-threshold}
+\sum_{b\in\B}(v_b-\tau_{\downarrow})z_b\le0,
+\qquad \sum_{b\in\B}z_b\ge1.
+\end{equation}
+The second constraint ensures a positive denominator. The first is
+equivalent to the average threshold after multiplying by that
+denominator. Together with constraints linking $z_b$ to tuple
+deletions, these conditions admit an exact integer linear programming
+formulation. The coefficients may have either sign, so the monotone
+coverage analysis above does not apply. We establish no general
+greedy approximation guarantee for \agg{AVG}; this does not rule
+out guarantees under additional assumptions.
+
+\begin{table}[t]
+\centering
+\caption{Approximation guarantees for feasible \MIW\ instances.
+Let $H_C=\lceil\theta\rceil$,
+$H_S=\lceil\theta/\varepsilon\rceil$, and let $m$ count critical
+derivations for the chosen extremum.}
+\label{tab:aggregate-guarantees}
+\small
+\begin{tabular}{@{}lll@{}}
+\toprule
+Aggregate & Method & Size factor\\
+\midrule
+\agg{COUNT} & Derivation coverage & $1+\ln H_C$\\
+\agg{SUM} & Weighted coverage & $1+\ln H_S$\\
+\agg{MAX}, \agg{MIN} & Protected combination & $\min\{r,1+\ln m\}$\\
+\agg{AVG} & --- & Not established\\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Table~\ref{tab:aggregate-guarantees} summarizes the guarantees.
+The \agg{SUM} bound assumes nonnegative weights in integer multiples
+of $\varepsilon>0$; the combined extrema bound uses both protected methods
+and $r=\max_b|T_b|$. These are witness-size bounds. Enumeration and oracle
+costs depend on representation, as detailed next. The \agg{COUNT} coverage
+method specializes known ADP approximation machinery~\cite{hu2021adp};
+neither it nor the standard submodular-cover theorem is claimed as new.

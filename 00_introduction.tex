@@ -1,0 +1,67 @@
+Aggregate queries compress many records into a single number, but the
+number of contributing records can obscure dependence on a few source
+tuples. In a join, deleting one connector tuple can remove many aggregate
+inputs at once. A count supported by thousands of derivations may therefore
+cross a decision threshold after only a handful of source deletions.
+Understanding this dependence requires an intervention on the source
+database, together with a precise description of the answer change of
+interest.
+
+We ask the following question: what is the smallest permitted deletion set
+that moves an aggregate answer across a given threshold? We call such a set
+a \emph{minimum instability witness} (\MIW). The threshold is directional:
+a downward change for \agg{COUNT}, nonnegative \agg{SUM}, and \agg{MAX};
+an upward change for \agg{MIN}; and either chosen direction for \agg{AVG}.
+The optimal cardinality measures resistance to that intervention.
+Designated deletability lets an analyst vary uncertain records while
+treating reference data as immutable.
+
+\paragraph{Relationship to existing problems.}
+The counting case directly overlaps aggregated deletion propagation (ADP),
+which minimizes source deletions needed to remove a specified number of
+query outputs~\cite{hu2021adp}. On duplicate-free full self-join-free
+conjunctive queries in the common deletability setting, the problems
+coincide. Hu et al. already establish logarithmic and relation-count
+approximation guarantees in that setting. We use this connection as a
+starting point, rather than claim a new counting optimization problem.
+The broader deletion/preservation framework of Makhija and
+Gatterbauer~\cite{makhija2025ilp} also supplies relevant ILP methodology.
+Our focus is the effect of the aggregate threshold on the optimization
+structure, especially the survivor condition for extrema and the signed
+constraint for averages.
+
+\paragraph{Why the aggregate matters.}
+For \agg{COUNT} and nonnegative \agg{SUM}, deleting tuples destroys
+nonnegative derivation contributions, giving a weighted-coverage function.
+For \agg{MAX}, removing one maximum-valued derivation may have no effect
+until all equally high derivations disappear. Its numerical change is
+therefore unsuitable for the same submodular analysis. Fixing the target
+instead identifies all derivations that must be destroyed. The remaining
+condition is to preserve at least one acceptable derivation. For
+\agg{AVG}, a deletion changes both numerator and denominator, and even the
+direction of the change depends on which derivations are removed.
+
+\paragraph{Results and scope.}
+We develop the following results under a single, explicit bag-semantics
+model.
+\begin{itemize}
+\item We formalize directional threshold stability with unit deletion costs,
+immutable tuples, self-joins, and empty-input conventions
+(Section~\ref{sec:problem}). A fixed-query reduction proves NP-completeness
+for all five budget decision problems; singleton-support coverage and
+independent-row averages provide exact tractable cases
+(Section~\ref{sec:complexity}).
+\item We specialize standard submodular cover to \agg{COUNT} and
+nonnegative \agg{SUM}, retaining its dependence on the exact numerical
+unit. For extrema, we prove a complete survivor-based feasibility test and
+combine logarithmic coverage with a support-rank approximation. We explain
+why these arguments do not directly apply to the numerical benefit of
+\agg{AVG} (Section~\ref{sec:theory}).
+\item We give a unified explicit-derivation ILP and exact greedy execution
+methods with stated representation costs. We prove when circuit derivatives
+are exact deletion gains and exhibit their failure for repeated tuple
+variables (Section~\ref{sec:algorithms}).
+\end{itemize}
+The results separate aggregate structure from the cost of exact execution.
+Section~\ref{sec:related} discusses the closest prior work, and
+Section~\ref{sec:conclusion} identifies the remaining research questions.

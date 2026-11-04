@@ -1,0 +1,250 @@
+\section{Exact Formulations and Greedy Execution}
+\label{sec:algorithms}
+
+We separate three questions: how a deletion set is represented, how its
+benefit is computed, and which optimization rule chooses the next tuple.
+A compact representation does not by itself provide cheap marginal gains,
+and an approximate marginal oracle need not preserve an exact-greedy
+guarantee.
+
+\subsection{A Unified Explicit-Derivation ILP}
+\label{sec:ilp}
+
+Introduce binary variables $x_t$ for $t\in\Del$, with $x_t=1$ denoting
+deletion, and $z_b$ for $b\in\B$, with $z_b=1$ denoting survival.
+Minimize
+\begin{equation}
+\label{eq:ilp-objective}
+\sum_{t\in\Del}x_t
+\end{equation}
+subject to the linking constraints
+\begin{align}
+ z_b&\le 1-x_t &&(b\in\B,\ t\in T_b),\label{eq:ilp-upper}\\
+ z_b&\ge 1-\sum_{t\in T_b}x_t &&(b\in\B).\label{eq:ilp-lower}
+\end{align}
+For \agg{COUNT} or \agg{SUM}, add
+\begin{equation}
+\label{eq:ilp-coverage}
+\sum_{b\in\B}w_b(1-z_b)\ge\theta,
+\end{equation}
+where $w_b=1$ or $v_b$, respectively. For \agg{MAX} or \agg{MIN}, add
+\begin{equation}
+\label{eq:ilp-extrema}
+z_b=0\quad(b\in\B_{\mathrm{crit}}),
+\qquad \sum_{b\in\B}z_b\ge1.
+\end{equation}
+For downward \agg{AVG}, add
+\begin{equation}
+\label{eq:ilp-avg}
+\sum_{b\in\B}(v_b-\tau_{\downarrow})z_b\le0,
+\qquad \sum_{b\in\B}z_b\ge1.
+\end{equation}
+Binary rational coefficients may be cleared by positive denominators
+without changing feasibility.
+
+\begin{theorem}[Exactness of the ILP]
+\label{thm:ilp}
+The feasible ILP solutions correspond exactly to valid instability
+witnesses through $S=\{t:x_t=1\}$. Its optimum is $|S^\star|$;
+ILP infeasibility is equivalent to witness infeasibility.
+\end{theorem}
+\begin{proof}
+If any $t\in T_b$ is deleted, constraint~\eqref{eq:ilp-upper} forces
+$z_b=0$. If none is deleted, constraint~\eqref{eq:ilp-lower} forces
+$z_b=1$. In particular, an empty support forces survival. Thus $z_b$
+is precisely the actual survival indicator. Constraint~\eqref{eq:ilp-coverage}
+then expresses the destroyed contribution. Lemma~\ref{lem:extrema-equivalence}
+proves the extrema constraints, and multiplying the average inequality
+by its positive denominator proves~\eqref{eq:ilp-avg}. Conversely,
+assigning the true deletion and survival indicators of any valid witness
+satisfies every constraint for its operator. The objective counts exactly
+the deleted source tuples.
+\end{proof}
+
+Both linking directions matter. With values $\{10,0\}$, only the
+high-valued row deletable, and target zero, the upper bounds alone would
+allow setting both $x_{10}=0$ and $z_{10}=0$, inventing a free deletion.
+The lower bound prevents this spurious solution.
+
+The encoding has $n+M$ binary variables and $O(M+L)$ constraints.
+It is polynomial in the explicit-derivation representation, not necessarily
+in a supplied compact circuit. It provides an exact baseline when solved
+to proven optimality. A timed-out feasible solution is an upper bound on
+optimum; a solver's certified lower bound is needed to quantify its gap.
+The use of deletion and witness variables follows established deletion
+propagation ILP methodology~\cite{makhija2025ilp}; we do not claim the
+existence of such an encoding as a new optimization technique, or transfer
+integral-relaxation results to this formulation without proof.
+
+\subsection{Explicit Supports and Incremental Coverage}
+\label{sec:explicit-greedy}
+
+For nonnegative coverage weights, store an incidence list of derivations
+containing each tuple and a live flag for every derivation. Initialize
+\[
+g_t=\sum_{b:t\in T_b}w_b.
+\]
+At each iteration, choose an allowed undeleted tuple of maximum $g_t$.
+For each still-live derivation containing it, mark that derivation dead
+and subtract $w_b$ from the gain of every tuple in its support. Dead
+derivations are never subtracted again. Maintain the accumulated destroyed
+weight to test termination. For extrema, use only critical derivations,
+unit weights, and the permitted ground set of the current protected run.
+
+\begin{proposition}[Incremental marginal invariant]
+\label{prop:incremental}
+After any deletion set $S$ selected by this procedure, every remaining
+allowed tuple satisfies $g_t=f(t\mid S)$. The procedure therefore
+implements exact marginal-gain greedy.
+\end{proposition}
+\begin{proof}
+Initially every derivation is live, so the formula is
+Equation~\eqref{eq:coverage-marginal}. When a tuple is deleted, precisely
+the previously live incident derivations cease to survive. Their weights
+are removed once from every remaining tuple's gain, leaving exactly the
+sum over still-surviving incident derivations.
+\end{proof}
+
+With a scan to select the next tuple, one run takes $O(M+L+n^2)$
+arithmetic operations: the incidence lists are initialized once, each
+derivation dies at most once, and its support is traversed once when it
+dies. Scanning the chosen tuples' incidence lists costs at most $L$ over
+the run. Space is $O(M+L+n)$. These costs exclude construction of the
+derivation representation. The bound is for one protected run; gains and
+live flags must be reinitialized for another survivor.
+
+The disjoint-support method can be implemented by scanning reduced critical
+supports while maintaining their selected union. Add a support exactly
+when its intersection with that union is empty. One protected run takes
+$O(M+L+n)$ time and space with indexed tuple membership. Hence the
+bounded-support guarantee does not require solving an optimization
+subproblem beyond the survivor enumeration.
+
+\subsection{Query Oracles and Exact Lazy Selection}
+\label{sec:query-oracles}
+
+Let $C_Q$ bound an exact evaluation of the residual aggregate, including
+arithmetic on its encoded values. For \agg{COUNT} and \agg{SUM},
+\[
+f(t\mid S)=Q(D\setminus S)-Q(D\setminus(S\cup\{t\})).
+\]
+Caching the current answer lets ordinary greedy compute all candidates by
+at most $n$ residual evaluations per iteration. At most $n$ iterations
+therefore require $O(n^2)$ evaluations and $O(n^2 C_Q)$ time. For extrema,
+counting residual derivations satisfying the strict critical-value test
+gives the corresponding $h$ oracle under bag semantics. Survivor enumeration
+still requires a complete method of obtaining safe supports; value-oracle
+access alone does not supply them.
+
+Submodularity also permits the standard accelerated greedy
+selection~\cite{minoux1978lazy}. Store a previously
+computed marginal as an upper bound in a max-priority queue. Recompute
+the largest bound at the current deletion set. Select its tuple only when
+its exact gain is at least every other stored bound; otherwise update the
+bound and continue. Since true gains can only decrease, that acceptance
+condition certifies an actual maximum marginal. Fixing a common tuple
+order resolves ties consistently with ordinary greedy. Refreshing each
+tuple at most once per iteration gives the same $O(n^2)$ worst-case oracle
+bound, with additional queue overhead; fewer evaluations are a possible
+practical benefit, not a worst-case improvement established here.
+
+Restricting candidates to an uncertified active set, using estimated gains,
+or accepting a tuple before this maximum test defines a heuristic. Such
+choices need a separate analysis and do not inherit
+Theorem~\ref{thm:general-greedy} from the implementation alone.
+
+\subsection{Arithmetic Provenance Circuits}
+\label{sec:circuits}
+
+A circuit oracle here is an acyclic arithmetic circuit with rational
+constants, tuple-survival inputs $y_t$, and binary addition and
+multiplication gates. Its size $c$ counts gates and wires. The oracle
+contract is that, at every Boolean assignment, its output equals the
+surviving weighted derivation sum:
+\begin{equation}
+\label{eq:circuit-contract}
+P(y)=\sum_{b\in\B}w_b\prod_{t\in T_b}y_t
+\qquad(y\in\{0,1\}^{n}).
+\end{equation}
+Here $y_t=0$ denotes deletion. The contract may be instantiated for SUM,
+COUNT, or critical COUNT. Constructing a compact circuit satisfying it
+is a separate task; an arbitrary circuit for query existence is
+insufficient. This arithmetic representation is motivated by semiring
+provenance~\cite{green2007provenance}.
+
+A topological evaluation takes $O(c)$ arithmetic operations. At the
+assignment $y^S$ encoding the current deletions, exact marginal gains are
+\begin{equation}
+\label{eq:circuit-difference}
+f(t\mid S)=P(y^S)-P(y^S\text{ with }y_t=0).
+\end{equation}
+Thus any circuit meeting the Boolean contract implements exact greedy
+in $O(n^2c)$ arithmetic operations per run, without expanding its
+polynomial. Protected runs fix the survivor's inputs to one and exclude
+them from deletion candidates. Arithmetic complexity excludes circuit
+construction and must be augmented by operand bit lengths. The contract
+alone does not bound those lengths for arbitrary supplied circuits.
+
+\begin{proposition}[Exact derivatives for multilinear circuits]
+\label{prop:gradient}
+If the circuit's formal polynomial is multilinear in every deletable
+variable, all current deletion marginals can be computed by one forward
+and one reverse differentiation pass, using $O(c+n)$ arithmetic operations.
+One greedy run then uses $O(n(c+n))$ such operations, including selection.
+\end{proposition}
+\begin{proof}
+For any undeleted tuple $t$, multilinearity gives
+$P(y)=y_t A(y_{-t})+B(y_{-t})$. The difference between setting $y_t$ to
+one and to zero is $A(y_{-t})=\partial P/\partial y_t$. A forward pass
+records gate values. The reverse pass uses standard arithmetic-circuit
+differentiation~\cite{baur1983derivatives}. In reverse topological order, initialize the output's
+adjoint to one; an addition gate passes its adjoint to both inputs, and a
+product gate passes its adjoint times the other input's value. Sum
+adjoints at shared gates and at all leaves with the same tuple label.
+The chain rule gives all partial derivatives in one pass over gates and
+wires, with no division and hence no difficulty at zero-valued inputs.
+Scanning the at most $n$ candidates chooses an exact largest gain.
+Repeating for at most $n$ iterations gives the stated cost.
+\end{proof}
+
+Formal multilinearity is stronger than Boolean agreement with
+Equation~\eqref{eq:circuit-contract}. A provenance polynomial for a
+self-join may contain $y_t^2$: its values at zero and one represent one
+surviving derivation, but its derivative at one is two, whereas the
+actual deletion loss is one. Ordinary differentiation therefore need
+not compute exact gains for self-joins. Direct reevaluation via
+Equation~\eqref{eq:circuit-difference} remains correct.
+
+The usual derivation polynomial of a self-join-free query is multilinear
+in tuple identifiers. A sufficient circuit-level certificate is that, at
+every multiplication gate, the two child polynomials use disjoint sets of
+deletable variables. Addition can share variables between its children.
+This certificate can be checked by propagating variable sets through the
+DAG, with a cost depending on their representation. We do not assume
+that every factorized provenance representation has this property, nor
+that converting one to a multilinear circuit preserves size.
+
+\subsection{AVG Search and Verification}
+\label{sec:avg-search}
+
+At target $\tau=\tau_{\downarrow}$ define
+\[
+F_\tau(S)=\sum_{b\in\B(S)}(v_b-\tau).
+\]
+A valid AVG witness satisfies $F_\tau(S)\le0$ and $|\B(S)|\ge1$.
+A natural heuristic chooses a tuple maximizing the net decrease
+$F_\tau(S)-F_\tau(S\cup\{t\})$ among deletions leaving a survivor.
+The gain must include all destroyed derivations, including those with
+negative $v_b-\tau$; summing only positive coefficients is not the true
+threshold gain. Signed weights invalidate the monotone-coverage argument.
+A run may stall without proving infeasibility, so the ILP is the exact
+fallback when a certificate is required. Independent-row instances instead
+use Proposition~\ref{prop:avg-rows}.
+
+Every returned candidate should be checked against the original residual
+query with the prescribed bag semantics, deletability policy, and empty-input
+condition. This check certifies feasibility, not optimality. In particular,
+removing redundant deletions can yield an inclusion-minimal witness without
+establishing minimum cardinality. Applying that postprocessing to a feasible
+approximation can only improve its size, provided each removal preserves
+validity and the threshold.

@@ -1,0 +1,422 @@
+% ============================================================
+% REFERENCES FOR AGGREGATE QUERY STABILITY
+% Papers studied/read during the project
+% ============================================================
+
+
+% ============================================================
+% 1. DATA PROVENANCE
+% ============================================================
+
+@inproceedings{green2007provenance,
+  title     = {Provenance Semirings},
+  author    = {Green, Todd J. and Karvounarakis, Grigoris and Tannen, Val},
+  booktitle = {Proceedings of the 26th ACM SIGMOD-SIGACT-SIGART
+               Symposium on Principles of Database Systems (PODS)},
+  pages     = {31--40},
+  publisher = {Association for Computing Machinery},
+  address   = {New York, NY, USA},
+  year      = {2007},
+  doi       = {10.1145/1265530.1265535}
+}
+
+@inproceedings{amsterdamer2011aggregate,
+  title     = {Provenance for Aggregate Queries},
+  author    = {Amsterdamer, Yael and Deutch, Daniel and Tannen, Val},
+  booktitle = {Proceedings of the 30th ACM SIGMOD-SIGACT-SIGART
+               Symposium on Principles of Database Systems (PODS)},
+  pages     = {153--164},
+  publisher = {Association for Computing Machinery},
+  address   = {New York, NY, USA},
+  year      = {2011},
+  doi       = {10.1145/1989284.1989302}
+}
+
+@inproceedings{deutch2014circuits,
+  title     = {Circuits for Datalog Provenance},
+  author    = {Deutch, Daniel and Milo, Tova and Roy, Sudeepa and Tannen, Val},
+  booktitle = {Proceedings of the 17th International Conference
+               on Database Theory (ICDT)},
+  year      = {2014}
+}
+
+
+% ============================================================
+% 2. SHAPLEY VALUE / FACT ATTRIBUTION
+% ============================================================
+
+@article{livshits2021shapley,
+  title   = {The Shapley Value of Tuples in Query Answering},
+  author  = {Livshits, Ester and Bertossi, Leopoldo and Kimelfeld, Benny
+             and Sebag, Moshe},
+  journal = {Logical Methods in Computer Science},
+  volume  = {17},
+  number  = {3},
+  year    = {2021},
+  doi     = {10.46298/LMCS-17(3:22)2021}
+}
+
+@article{abramovich2024banzhaf,
+  title   = {Banzhaf Values for Facts in Query Answering},
+  author  = {Abramovich, Omer and Deutch, Daniel and Frost, Nave
+             and Kara, Ahmet and Olteanu, Dan},
+  journal = {Proceedings of the ACM on Management of Data},
+  volume  = {2},
+  number  = {3},
+  year    = {2024},
+  doi     = {10.1145/3654926}
+}
+
+@article{abramovich2025attribution,
+  title   = {Advancing Fact Attribution for Query Answering:
+             Aggregate Queries and Novel Algorithms},
+  author  = {Abramovich, Omer and Deutch, Daniel and Frost, Nave
+             and Kara, Ahmet and Olteanu, Dan},
+  journal = {Proceedings of the VLDB Endowment},
+  volume  = {18},
+  number  = {11},
+  pages   = {3996--4008},
+  year    = {2025},
+  doi     = {10.14778/3749646.3749670}
+}
+
+@article{bertossi2023shapley,
+  title   = {The Shapley Value in Database Management},
+  author  = {Bertossi, Leopoldo and Kimelfeld, Benny and Livshits, Ester
+             and Monet, Mika{\"e}l},
+  journal = {ACM SIGMOD Record},
+  volume  = {52},
+  number  = {2},
+  pages   = {6--17},
+  year    = {2023},
+  doi     = {10.1145/3615952.3615954}
+}
+
+
+% ============================================================
+% 3. LOCAL SENSITIVITY / QUERY STABILITY
+% ============================================================
+
+@inproceedings{tao2020sensitivity,
+  title     = {Computing Local Sensitivities of Counting Queries with Joins},
+  author    = {Tao, Yuchao and He, Xi and Machanavajjhala, Ashwin
+               and Roy, Sudeepa},
+  booktitle = {Proceedings of the 2020 ACM SIGMOD International
+               Conference on Management of Data},
+  year      = {2020},
+  doi       = {10.1145/3318464.3389762}
+}
+
+
+% ============================================================
+% 4. DELETION PROPAGATION / RESILIENCE / RESPONSIBILITY
+% ============================================================
+
+@inproceedings{buneman2002deletion,
+  title     = {On Propagation of Deletions and Annotations Through Views},
+  author    = {Buneman, Peter and Khanna, Sanjeev and Tan, Wang-Chiew},
+  booktitle = {Proceedings of the ACM Symposium on Principles
+               of Database Systems (PODS)},
+  year      = {2002}
+}
+
+@article{makhija2023resilience,
+  title   = {A Unified Approach for Resilience and Causal Responsibility
+             with Integer Linear Programming},
+  author  = {Makhija, Neha and Gatterbauer, Wolfgang},
+  year    = {2023}
+}
+
+@article{makhija2025ilp,
+  title   = {Is Integer Linear Programming All You Need for
+             Deletion Propagation? A Unified and Practical Approach
+             for Generalized Deletion Propagation},
+  author  = {Makhija, Neha and Gatterbauer, Wolfgang},
+  journal = {Proceedings of the VLDB Endowment},
+  volume  = {18},
+  number  = {8},
+  pages   = {2667--2680},
+  year    = {2025},
+  doi     = {10.14778/3742728.3742756}
+}
+
+
+% ============================================================
+% 5. DATABASE REPAIRS / CONSISTENT QUERY ANSWERING
+% ============================================================
+
+@article{chomicki2005minimal,
+  title   = {Minimal-Change Integrity Maintenance Using Tuple Deletions},
+  author  = {Chomicki, Jan and Marcinkowski, Jerzy},
+  journal = {Information and Computation},
+  year    = {2005}
+}
+
+@article{bertossi2006consistent,
+  title   = {Consistent Query Answering in Databases},
+  author  = {Bertossi, Leopoldo},
+  journal = {ACM SIGMOD Record},
+  volume  = {35},
+  number  = {2},
+  pages   = {68--76},
+  year    = {2006}
+}
+
+@inproceedings{kolahi2009repairs,
+  title     = {On Approximating Optimum Repairs for
+               Functional Dependency Violations},
+  author    = {Kolahi, Solmaz and Lakshmanan, Laks V. S.},
+  booktitle = {Proceedings of the 12th International Conference
+               on Database Theory (ICDT)},
+  pages     = {53--62},
+  year      = {2009}
+}
+
+
+% ============================================================
+% 6. SMALLEST WITNESSES / QUERY EXPLANATIONS
+% ============================================================
+
+@inproceedings{hu2024smallest,
+  title     = {Finding Smallest Witnesses for Conjunctive Queries},
+  author    = {Hu, Xiao and Sintos, Stavros},
+  booktitle = {International Conference on Database Theory (ICDT)},
+  year      = {2024}
+}
+
+@inproceedings{miao2019explaining,
+  title     = {Explaining Wrong Queries Using Small Examples},
+  author    = {Miao, Zhengjie and Roy, Sudeepa and Yang, Jun},
+  booktitle = {Proceedings of the 2019 International Conference
+               on Management of Data (SIGMOD)},
+  year      = {2019}
+}
+
+@article{wu2013scorpion,
+  title   = {Scorpion: Explaining Away Outliers in Aggregate Queries},
+  author  = {Wu, Eugene and Madden, Samuel},
+  journal = {Proceedings of the VLDB Endowment},
+  volume  = {6},
+  number  = {8},
+  pages   = {553--564},
+  year    = {2013},
+  doi     = {10.14778/2536354.2536356}
+}
+
+
+% ============================================================
+% 7. CONTRIBUTION MAXIMIZATION
+% ============================================================
+
+@inproceedings{milo2019contribution,
+  title     = {Contribution Maximization in Probabilistic Datalog},
+  author    = {Milo, Tova and Moskovitch, Yuval and Youngmann, Brit},
+  booktitle = {IEEE International Conference on Data Engineering (ICDE)},
+  year      = {2019}
+}
+
+
+% ============================================================
+% 8. FAIRNESS-AWARE QUERYING
+% ============================================================
+
+@inproceedings{shetiya2022fairness,
+  title     = {Fairness-Aware Range Queries for Selecting Unbiased Data},
+  author    = {Shetiya, Suraj and Swift, Ian P. and Asudeh, Abolfazl
+               and Das, Gautam},
+  booktitle = {2022 IEEE 38th International Conference
+               on Data Engineering (ICDE)},
+  pages     = {1423--1436},
+  year      = {2022},
+  doi       = {10.1109/ICDE53745.2022.00111}
+}
+
+
+% ============================================================
+% 9. QUERY REFINEMENT / DIVERSE TOP-K
+% ============================================================
+
+@article{campbell2024refinement,
+  title   = {Query Refinement for Diverse Top-k Selection},
+  author  = {Campbell, Felix S. and Silberstein, Alon
+             and Stoyanovich, Julia and Moskovitch, Yuval},
+  journal = {Proceedings of the ACM on Management of Data},
+  volume  = {2},
+  number  = {3},
+  articleno = {166},
+  year    = {2024},
+  doi     = {10.1145/3654969}
+}
+
+
+% ============================================================
+% 10. RANKING STABILITY
+% ============================================================
+
+@article{campbellLocalStability,
+  title   = {Local Stability of Rankings},
+  author  = {Campbell, Felix S. and Moskovitch, Yuval},
+  journal = {Proceedings of the VLDB Endowment},
+  year    = {2025}
+}
+
+
+% ============================================================
+% 11. GENERAL PROVENANCE BACKGROUND
+% ============================================================
+
+@article{cheney2009provenance,
+  title   = {Provenance in Databases: Why, How, and Where},
+  author  = {Cheney, James and Chiticariu, Laura and Tan, Wang-Chiew},
+  journal = {Foundations and Trends in Databases},
+  volume  = {1},
+  number  = {4},
+  pages   = {379--474},
+  year    = {2009},
+  doi     = {10.1561/1900000006}
+}
+
+@inproceedings{buneman2001whywhere,
+  title     = {Why and Where: A Characterization of Data Provenance},
+  author    = {Buneman, Peter and Khanna, Sanjeev and Tan, Wang-Chiew},
+  booktitle = {International Conference on Database Theory (ICDT)},
+  year      = {2001}
+}
+
+
+% ============================================================
+% 12. FOUNDATIONAL DATABASE THEORY
+% ============================================================
+
+@book{abiteboul1995foundations,
+  title     = {Foundations of Databases},
+  author    = {Abiteboul, Serge and Hull, Richard and Vianu, Victor},
+  publisher = {Addison-Wesley},
+  year      = {1995}
+}
+
+
+% ============================================================
+% 13. FOUNDATIONAL SHAPLEY VALUE
+% ============================================================
+
+@incollection{shapley1953value,
+  title     = {A Value for n-Person Games},
+  author    = {Shapley, Lloyd S.},
+  booktitle = {Contributions to the Theory of Games II},
+  editor    = {Kuhn, Harold W. and Tucker, Albert W.},
+  pages     = {307--317},
+  publisher = {Princeton University Press},
+  year      = {1953}
+}
+
+% ============================================================
+% 14. DATA CLEANING / HOSPITAL BENCHMARK
+% ============================================================
+
+@inproceedings{mahdavi2019raha,
+  title     = {Raha: A Configuration-Free Error Detection System},
+  author    = {Mahdavi, Mohammad and Abedjan, Ziawasch
+               and Castro Fernandez, Raul and Madden, Samuel
+               and Ouzzani, Mourad and Stonebraker, Michael
+               and Tang, Nan},
+  booktitle = {Proceedings of the 2019 International Conference
+               on Management of Data (SIGMOD)},
+  pages     = {865--882},
+  year      = {2019}
+}
+
+@article{mahdavi2020baran,
+  title   = {Baran: Effective Error Correction via a Unified
+             Context Representation and Transfer Learning},
+  author  = {Mahdavi, Mohammad and Abedjan, Ziawasch},
+  journal = {Proceedings of the VLDB Endowment},
+  volume  = {13},
+  number  = {11},
+  pages   = {1948--1961},
+  year    = {2020}
+}
+
+@inproceedings{mahdavi2021rahabaran,
+  title     = {Semi-Supervised Data Cleaning with Raha and Baran},
+  author    = {Mahdavi, Mohammad and Abedjan, Ziawasch},
+  booktitle = {11th Conference on Innovative Data Systems Research (CIDR)},
+  year      = {2021}
+}
+
+
+% ============================================================
+% 15. PROBABILISTIC DATABASES / ANYTIME BOUNDS
+% ============================================================
+
+@article{fink2013anytime,
+  title   = {Anytime Approximation in Probabilistic Databases},
+  author  = {Fink, Robert and Huang, Jiewen and Olteanu, Dan},
+  journal = {The VLDB Journal},
+  volume  = {22},
+  number  = {6},
+  pages   = {823--848},
+  year    = {2013},
+  doi     = {10.1007/s00778-013-0310-5}
+}
+
+
+@article{wolsey1982greedy,
+  author  = {Wolsey, Laurence A.},
+  title   = {An Analysis of the Greedy Algorithm for the Submodular Set Covering Problem},
+  journal = {Combinatorica},
+  volume  = {2},
+  number  = {4},
+  pages   = {385--393},
+  year    = {1982},
+  doi     = {10.1007/BF02579435}
+}
+
+
+@article{hu2021adp,
+  author = {Hu, Xiao and Sun, Shouzhuo and Patwa, Shweta and
+            Panigrahi, Debmalya and Roy, Sudeepa},
+  title = {Aggregated Deletion Propagation for Counting Conjunctive Query Answers},
+  journal = {Proceedings of the VLDB Endowment},
+  volume = {14},
+  number = {2},
+  pages = {228--240},
+  year = {2021},
+  doi = {10.14778/3425879.3425892}
+}
+
+@misc{freire2015resilience,
+  author = {Freire, Cibele and Gatterbauer, Wolfgang and Immerman, Neil
+            and Meliou, Alexandra},
+  title = {A Characterization of the Complexity of Resilience and
+           Responsibility for Self-join-free Conjunctive Queries},
+  year = {2015},
+  howpublished = {arXiv:1507.00674},
+  doi = {10.48550/arXiv.1507.00674}
+}
+
+
+@article{baur1983derivatives,
+  author = {Baur, Walter and Strassen, Volker},
+  title = {The Complexity of Partial Derivatives},
+  journal = {Theoretical Computer Science},
+  volume = {22},
+  number = {3},
+  pages = {317--330},
+  year = {1983},
+  doi = {10.1016/0304-3975(83)90110-X}
+}
+
+@incollection{minoux1978lazy,
+  author = {Minoux, Michel},
+  title = {Accelerated Greedy Algorithms for Maximizing Submodular Set Functions},
+  editor = {Stoer, Josef},
+  booktitle = {Optimization Techniques},
+  series = {Lecture Notes in Control and Information Sciences},
+  volume = {7},
+  pages = {234--243},
+  publisher = {Springer},
+  address = {Berlin, Heidelberg},
+  year = {1978},
+  doi = {10.1007/BFb0006528}
+}

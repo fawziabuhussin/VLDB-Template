@@ -1,0 +1,32 @@
+\section{Discussion and Conclusion}
+\label{sec:conclusion}
+
+Minimum instability witnesses measure the permitted source deletions
+needed to cross an aggregate threshold. Bag COUNT and nonnegative SUM
+yield weighted coverage. Extrema yield critical-support hitting with a
+surviving-derivation obligation, permitting a complete feasibility test and
+a combined $\min\{r,1+\ln m\}$ approximation. AVG instead gives a signed
+linear threshold over survivors. Fixed-query hardness coexists with exact
+algorithms for singleton-support coverage and independent numeric rows.
+Exact execution requires a specified representation: explicit-support
+updates, query oracles, and circuit derivatives have different costs and
+conditions of applicability.
+
+\paragraph{Remaining theoretical questions.}
+Our reduction does not classify all query shapes or establish matching
+inapproximability. Safe-support enumeration can be expensive, motivating
+compact survivor selection. Duplicate elimination, nulls, grouping, signed
+SUM, and non-unit costs require separate analyses. AVG's failure of
+numerical-benefit submodularity leaves open both richer tractable subclasses
+and other approximation approaches.
+
+\paragraph{Empirical questions.}
+No dataset or runtime results are claimed here. An implementation study
+should compare the exact ILP, incremental-support greedy, residual-query
+greedy, and certified circuit greedy under identical semantics. It should
+measure construction and optimization time, peak memory, oracle calls,
+feasibility, and witness size. Optimality ratios require proven optima;
+solver timeouts instead call for certified objective bounds. Varying join
+multiplicity, self-joins, deletion policy, numerical precision, and distinct
+safe supports would isolate the costs identified by the analysis and test
+whether compact provenance offsets survivor enumeration.

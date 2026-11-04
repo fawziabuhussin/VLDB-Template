@@ -1,0 +1,142 @@
+\section{Preliminaries and Problem Formulation}
+\label{sec:problem}
+
+We study how many input tuples must be deleted to move an aggregate-query
+answer across a prescribed threshold. This section specifies the query
+model and defines instability witnesses. Section~\ref{sec:theory} analyzes
+how the aggregate operator determines the structure of the resulting
+optimization problem.
+
+\subsection{Data and Query Model}
+\label{sec:setting}
+
+Let $D$ be a finite relational database instance. We identify each tuple
+occurrence by a distinct identifier, so equal-valued tuples can be deleted
+independently. A query $Q$ consists of a positive select--project--join
+(SPJ) expression followed by a scalar aggregate. We use bag semantics:
+different successful derivations contribute separately, including when
+projection produces equal-valued results. We consider \agg{COUNT},
+\agg{SUM}, \agg{MAX}, \agg{MIN}, and \agg{AVG}, without grouping,
+negation, or duplicate elimination. For \agg{SUM}, contributions are
+nonnegative. Aggregate inputs are numeric and contain no null values.
+
+Only tuples in a designated set $\Del\subseteq D$ may be deleted; all other
+tuples are immutable. A deletion set $S\subseteq\Del$ produces the instance
+$D\setminus S$. Deletions can remove derivations but cannot create new ones.
+There is no restriction on overlap between derivations or on which input
+relations contain deletable tuples.
+
+Let $\B$ be the multiset of successful derivations before aggregation.
+For a derivation $b\in\B$, let $v_b$ be its aggregate input value and let
+$T_b\subseteq\Del$ contain the deletable tuples on which it depends.
+Immutable tuples are implicit in the derivation and do not appear in $T_b$.
+The surviving derivations after deleting $S$ are
+\begin{equation}
+\label{eq:surviving-derivations}
+\B(S)=\{b\in\B:S\cap T_b=\emptyset\},
+\end{equation}
+where multiplicities are retained. Thus, $b$ is destroyed exactly when
+$S\cap T_b\ne\emptyset$. This representation follows the provenance view
+of query evaluation~\cite{green2007provenance,amsterdamer2011aggregate}.
+It describes the query semantics; it does not require an algorithm to
+materialize every derivation.
+
+We define \agg{COUNT} and \agg{SUM} on an empty input to be zero,
+using the additive identity for \agg{SUM} rather than SQL's null result.
+For \agg{MAX}, \agg{MIN}, and \agg{AVG}, a valid deletion set must
+leave $\B(S)\ne\emptyset$. We assume that the original aggregate is defined. If a tuple is used in
+multiple atom positions of a self-join derivation, it occurs only once in
+$T_b$: deleting that tuple destroys the derivation once.
+
+\paragraph{Computational input.}
+For algorithmic claims, values and thresholds are binary-encoded rationals.
+Data-complexity statements fix $Q$; combined complexity allows it to vary.
+Write $n=|\Del|$, $M=|\B|$, and $L=\sum_{b\in\B}|T_b|$.
+An explicit-derivation input lists every value and support, including bag
+multiplicities. Alternatively, a database engine can evaluate residual
+queries, or an explicitly specified circuit can provide value oracles
+(Section~\ref{sec:algorithms}). These representations have different costs.
+For a fixed query with $a$ relation-atom occurrences, $M\le |D|^a$,
+so enumeration is polynomial in data size, though it may be impractical.
+This is not a polynomial bound in combined query/database size or in the
+size of an arbitrary compressed representation. Arithmetic-operation bounds
+below are distinguished from bit complexity; exact rational operations
+also depend on operand lengths.
+
+\subsection{Instability Witnesses}
+\label{sec:witnesses}
+
+Fix a required change $\theta>0$. For \agg{COUNT}, \agg{SUM},
+\agg{MAX}, and \agg{AVG}, we seek a downward change and write
+$\tau_{\downarrow}=Q(D)-\theta$. For \agg{MIN}, deletions cannot decrease
+the minimum of a nonempty input, so we instead seek an upward change and
+write $\tau_{\uparrow}=Q(D)+\theta$. Accordingly, define
+\begin{equation}
+\label{eq:deletion-benefit}
+\DeltaQ(S)=
+\begin{cases}
+Q(D\setminus S)-Q(D), & \text{for \agg{MIN}},\\
+Q(D)-Q(D\setminus S), & \text{otherwise}.
+\end{cases}
+\end{equation}
+The threshold is non-strict: equality suffices to establish instability.
+Unlike the other operators, \agg{AVG} can move in either direction under
+deletions. We state its downward version; negating all values converts an
+upward instance into a downward one with the same witnesses. A two-sided
+\agg{AVG} request is solved by taking the smaller feasible witness from
+the two directions, reporting infeasibility only if both fail.
+
+\begin{definition}[Instability witness]
+\label{def:witness}
+A valid deletion set $S\subseteq\Del$ is an \emph{instability witness} if
+$\DeltaQ(S)\ge\theta$. Equivalently, it satisfies
+$Q(D\setminus S)\le\tau_{\downarrow}$ for a downward threshold, or
+$Q(D\setminus S)\ge\tau_{\uparrow}$ for \agg{MIN}.
+\end{definition}
+
+\begin{problem}[Minimum Instability Witness (\MIW)]
+\label{prob:miw}
+Given $D$, $Q$, $\Del$, and $\theta>0$, compute
+\begin{equation}
+\label{eq:miw}
+S^\star\in\argmin_{S\subseteq\Del}
+\bigl\{|S|: S\text{ is valid and }\DeltaQ(S)\ge\theta\bigr\},
+\end{equation}
+or report that no witness exists.
+\end{problem}
+
+We require minimum cardinality, rather than merely inclusion minimality.
+All deletions have unit cost. The optimal size $|S^\star|$ measures
+directional threshold stability: a larger optimum means that more
+input tuples must be removed to reach it.
+
+\begin{example}
+\label{ex:miw}
+Consider the join $R(K)\Join V(K,A)$, with deletable tuples
+$r_1=R(1)$ and $r_2=R(2)$, and immutable tuples
+$V(1,4)$, $V(1,6)$, and $V(2,5)$. The sum of $A$ is $15$.
+Deleting $r_1$ destroys the two derivations with values $4$ and $6$,
+whereas deleting $r_2$ destroys the derivation with value $5$.
+For $\theta=8$, the set $\{r_1\}$ is a minimum-cardinality witness:
+the remaining sum is $5\le15-8$, while $\{r_2\}$ does not reach the
+threshold. The deletion budget concerns input tuples, not the number of
+destroyed join results.
+\end{example}
+
+\paragraph{Aggregate-specific structure.}
+For \agg{COUNT} and nonnegative \agg{SUM}, the numerical change in
+the answer is a weighted-coverage function over destroyed derivations.
+For \agg{MAX} and \agg{MIN}, the threshold instead identifies a set
+of critical derivations that must all be destroyed, while at least one
+other derivation survives. For \agg{AVG}, the numerical change need
+not be monotone or submodular. Section~\ref{sec:theory} establishes these
+distinctions and the resulting greedy guarantees for \MIW.
+
+\paragraph{Why bag projection is essential.}
+Let deletable $R(1),R(2)$ join with immutable $V(1,7),V(2,7)$ and project
+$A$. Under bag semantics the result is $\{7,7\}$, and deleting either
+$R$ tuple removes one copy. Duplicate elimination instead gives $\{7\}$: either deletion alone
+leaves that value present, while both remove it.
+The marginal \agg{COUNT} loss of the second deletion rises from zero to
+one. Thus duplicate elimination can invalidate submodularity; results for
+set projection cannot be imported without checking their semantics.
