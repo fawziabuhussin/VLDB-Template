@@ -59,10 +59,8 @@ yields a constructive coverage subclass for AVG. We give a unified integer
 linear formulation and exact marginal computation through incremental
 supports, query reevaluation, and suitable arithmetic provenance circuits.
 We prove when circuit derivatives equal deletion gains and explain why
-AVG's signed threshold requires separate treatment. A reproducible TPC-H-derived pilot compares these execution choices for
-COUNT, SUM, and AVG, validating all 180 measured witnesses against residual
-SQL and exact arithmetic. The results distinguish witness-size guarantees
-from representation and execution costs.
+AVG's signed threshold requires separate treatment. The analysis separates
+witness-size guarantees from representation and execution costs.
 \end{abstract}
 
 \maketitle
@@ -80,7 +78,6 @@ from representation and execution costs.
 \input{03_complexity}
 \input{02_theory}
 \input{04_algorithms}
-\input{07_experiments}
 \input{05_related}
 \input{06_conclusion}
 

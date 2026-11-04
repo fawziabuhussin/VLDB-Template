@@ -12,15 +12,13 @@ reuse: self-join-free queries are tractable, while two occurrences of the
 deletable relation already admit fixed-query hardness.
 
 Execution depends on the representation as well as the optimization rule.
-Incremental supports, certified lazy SQL, and multilinear derivatives
-compute the same coverage marginals through different operations. The
-TPC-H-derived pilot confirms this agreement and shows both an incremental
-greedy speed advantage and an AVG case where ILP is faster. These findings
-motivate workload-specific execution choices rather than a uniform ranking
-of exact and heuristic methods.
+Incremental supports, certified lazy selection, and multilinear derivatives
+compute exact coverage marginals under their stated conditions through
+different operations. Their cost bounds identify the representation
+properties relevant to choosing an execution method.
 
-A fuller query classification, compact survivor selection, and broader
-experiments are natural next steps. Duplicate elimination, null values,
+A fuller query classification, compact survivor selection, and empirical
+evaluation are natural next steps. Duplicate elimination, null values,
 grouped outputs, signed SUM, repair constraints, and non-unit costs also
 raise new modeling and algorithmic questions. The present framework
 provides explicit threshold semantics and correctness conditions against

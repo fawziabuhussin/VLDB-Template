@@ -145,8 +145,8 @@ bound and continue. Since true gains can only decrease, that acceptance
 condition certifies an actual maximum marginal. Fixing a common tuple
 order resolves ties consistently with ordinary greedy. Refreshing each
 tuple at most once per iteration gives the same $O(n^2)$ worst-case oracle
-bound, with queue overhead. Section~\ref{sec:experiments} measures its practical
-behavior alongside the explicit-support and circuit implementations.
+bound, with queue overhead. Its practical benefit depends on how many
+stored bounds require refresh and on the cost of the exact oracle.
 
 Restricting candidates to an uncertified active set, using estimated gains,
 or accepting a tuple before this maximum test defines a heuristic. Such
