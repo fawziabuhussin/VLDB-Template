@@ -1,0 +1,70 @@
+\begin{figure}[t]
+\centering
+\begingroup
+\definecolor{overviewblue}{HTML}{255C8A}
+\definecolor{overviewgreen}{HTML}{237A65}
+\begin{tikzpicture}[
+  font=\small,
+  source/.style={draw,rounded corners,minimum width=17mm,
+                 minimum height=8mm,fill=black!3},
+  chosen/.style={source,draw=overviewblue,fill=overviewblue!10,thick},
+  value/.style={draw,circle,minimum size=7mm,inner sep=0pt,fill=white},
+  affected/.style={value,draw=overviewblue,fill=overviewblue!10},
+  link/.style={-{Stealth[length=1.6mm]},draw=black!45},
+  chosenlink/.style={link,draw=overviewblue,thick},
+  note/.style={font=\footnotesize,align=center}]
+
+\node[draw=black!20,rounded corners,fill=black!3,minimum width=8cm,
+      minimum height=13mm,align=center] at (4,6.9)
+  {\textbf{Question: which source tuples must we delete?}\\[2pt]
+   Fewest deletions, within budget $k$, causing change $\ge\theta$};
+
+\node[font=\footnotesize\bfseries,align=center] at (4,5.85)
+  {Running example: $Q=\agg{SUM}$, initial answer $15$};
+\node[note] at (1.55,5.3) {Deletable source tuples};
+\node[note] at (6.25,5.3) {Join contributions};
+
+\node[chosen] (r1) at (1.55,4.4) {$r_1$};
+\node[source] (r2) at (1.55,3.15) {$r_2$};
+\node[affected] (v4) at (6.25,4.75) {$4$};
+\node[affected] (v6) at (6.25,3.95) {$6$};
+\node[value] (v5) at (6.25,3.15) {$5$};
+\draw[chosenlink] (r1.east)--(v4.west);
+\draw[chosenlink] (r1.east)--(v6.west);
+\draw[link] (r2.east)--(v5.west);
+\node[note,text=overviewblue] at (3.85,2.55)
+  {Deleting $r_1$ removes two contributions: $4+6$};
+
+\node[draw=black!20,rounded corners,minimum width=8cm,
+      minimum height=12mm,align=center] at (4,1.55)
+  {$k=1$: at most one source deletion\\[2pt]
+   $\theta=8$: lower the sum from $15$ to at most $7$};
+
+\node[draw=overviewgreen,rounded corners,fill=overviewgreen!7,
+      minimum width=38mm,minimum height=14mm,align=center] (accepted) at (1.95,0.1)
+  {\textbf{Delete $r_1$: succeeds}\\[2pt]
+   $15\to5$; loss $10\ge8$};
+\node[draw=black!30,rounded corners,fill=black!2,
+      minimum width=38mm,minimum height=14mm,align=center] at (6.05,0.1)
+  {\textbf{Delete $r_2$: fails}\\[2pt]
+   $15\to10$; loss $5<8$};
+
+\node[draw=overviewblue,rounded corners,fill=overviewblue!8,
+      minimum width=8cm,minimum height=14mm,align=center] (answer) at (4,-1.6)
+  {\textbf{Minimum witness: $S^\star=\{r_1\}$, $|S^\star|=1\le k$}\\[2pt]
+   Zero deletions cannot reach the threshold.};
+\draw[link,draw=overviewgreen] (accepted.south) -- (accepted.south |- answer.north);
+\end{tikzpicture}
+\endgroup
+\caption{The paper's objective, illustrated for SUM. Minimize the number of
+permitted source deletions subject to $|S|\le k$ and $\Delta(S)\ge\theta$.
+The budget $k$ counts source tuples; the threshold $\theta$ measures the
+answer change. If no valid set fits the budget, report that outcome.}
+\label{fig:overview}
+\Description{An overview beside the abstract explains minimum k-instability
+witnesses with a SUM example. Source tuple r1 contributes join values 4 and
+6, while r2 contributes 5, giving an initial sum of 15. With at most one
+source deletion and a required drop of 8, deleting r1 leaves 5 and succeeds;
+deleting r2 leaves 10 and fails. The minimum witness is the single tuple r1.
+This separates the deletion budget k from the answer-change threshold theta.}
+\end{figure}
