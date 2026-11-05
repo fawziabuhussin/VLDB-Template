@@ -3,9 +3,9 @@
 
 We study how many input tuples must be deleted to move an aggregate-query
 answer across a prescribed threshold. This section specifies the query
-model and defines instability witnesses. Section~\ref{sec:theory} analyzes
-how the aggregate operator determines the structure of the resulting
-optimization problem.
+model and defines budgeted instability witnesses. Section~\ref{sec:complexity}
+studies their complexity; the subsequent coverage analysis is reserved
+for Section~\ref{sec:theory}.
 
 \subsection{Data and Query Model}
 \label{sec:setting}
@@ -49,13 +49,15 @@ multiple atom positions of a self-join derivation, it occurs only once in
 $T_b$: deleting that tuple destroys the derivation once.
 
 \paragraph{Computational input.}
-For algorithmic claims, values and thresholds are binary-encoded rationals.
+For algorithmic claims, values and thresholds are binary-encoded rationals,
+and the deletion budget $k$ is a binary-encoded nonnegative integer.
 Data-complexity statements fix $Q$; combined complexity allows it to vary.
 Write $n=|\Del|$, $M=|\B|$, and $L=\sum_{b\in\B}|T_b|$.
 An explicit-derivation input lists every value and support, including bag
 multiplicities. Alternatively, a database engine can evaluate residual
-queries, or an explicitly specified circuit can provide value oracles
-(Section~\ref{sec:algorithms}). These representations have different costs.
+queries, or an explicitly specified circuit can provide value oracles.
+These representations have different costs; their execution methods are
+reserved for Section~\ref{sec:algorithms}.
 For a fixed query with $a$ relation-atom occurrences, $M\le |D|^a$,
 so enumeration is polynomial in data size, though it may be impractical.
 This is not a polynomial bound in combined query/database size or in the
@@ -66,7 +68,9 @@ also depend on operand lengths.
 \subsection{Instability Witnesses}
 \label{sec:witnesses}
 
-Fix a required change $\theta>0$. For \agg{COUNT}, \agg{SUM},
+Fix a deletion budget $k\in\mathbb{Z}_{\ge0}$ and a required answer
+change $\theta>0$. The budget counts source tuple occurrences; the
+threshold measures the change in the aggregate answer. For \agg{COUNT}, \agg{SUM},
 \agg{MAX}, and \agg{AVG}, we seek a downward change and write
 $\tau_{\downarrow}=Q(D)-\theta$. For \agg{MIN}, deletions cannot decrease
 the minimum of a nonempty input, so we instead seek an upward change and
@@ -86,29 +90,48 @@ upward instance into a downward one with the same witnesses. A two-sided
 \agg{AVG} request is solved by taking the smaller feasible witness from
 the two directions, reporting infeasibility only if both fail.
 
-\begin{definition}[Instability witness]
+\begin{definition}[$k$-instability witness]
 \label{def:witness}
-A valid deletion set $S\subseteq\Del$ is an \emph{instability witness} if
-$\DeltaQ(S)\ge\theta$. Equivalently, it satisfies
+For a prescribed budget $k$ and threshold $\theta$, a valid deletion set
+$S\subseteq\Del$ is a \emph{$k$-instability witness} if
+\[
+|S|\le k\qquad\text{and}\qquad\DeltaQ(S)\ge\theta.
+\]
+Equivalently, within the deletion budget it satisfies
 $Q(D\setminus S)\le\tau_{\downarrow}$ for a downward threshold, or
 $Q(D\setminus S)\ge\tau_{\uparrow}$ for \agg{MIN}.
 \end{definition}
 
-\begin{problem}[Minimum Instability Witness (\MIW)]
+\begin{problem}[Minimum $k$-Instability Witness (\MIW)]
 \label{prob:miw}
-Given $D$, $Q$, $\Del$, and $\theta>0$, compute
+Given $D$, $Q$, $\Del$, $k\ge0$, and $\theta>0$, compute
 \begin{equation}
 \label{eq:miw}
-S^\star\in\argmin_{S\subseteq\Del}
-\bigl\{|S|: S\text{ is valid and }\DeltaQ(S)\ge\theta\bigr\},
+\begin{aligned}
+S^\star\in\argmin_{S\subseteq\Del}\{\,|S|:\;&S\text{ is valid},\\
+&|S|\le k,\ \DeltaQ(S)\ge\theta\,\},
+\end{aligned}
 \end{equation}
-or report that no witness exists.
+or report that no witness exists within budget $k$.
 \end{problem}
 
 We require minimum cardinality, rather than merely inclusion minimality.
-All deletions have unit cost. The optimal size $|S^\star|$ measures
-directional threshold stability: a larger optimum means that more
-input tuples must be removed to reach it.
+All deletions have unit cost. The parameters have different roles: $k$
+bounds the allowed intervention, while $\theta$ fixes the required answer
+change. Minimization chooses the smallest witness among those satisfying
+both constraints; the budget is an upper bound, not a required size.
+
+Let $\rho_\theta(D,Q,\Del)$ denote the minimum valid witness size without
+a budget, taking value $\infty$ when no deletion set reaches the threshold.
+Then a $k$-instability witness exists exactly when
+\[
+\rho_\theta(D,Q,\Del)\le k.
+\]
+When feasible, Problem~\ref{prob:miw} returns this minimum size. Failure
+within a particular budget means $\rho_\theta>k$; it does not by itself
+establish that the threshold is unreachable with more deletions. A larger
+$\rho_\theta$ means greater directional threshold stability. In particular,
+$k=0$ admits no witness because $\theta>0$.
 
 \begin{example}
 \label{ex:miw}
@@ -117,7 +140,8 @@ $r_1=R(1)$ and $r_2=R(2)$, and immutable tuples
 $V(1,4)$, $V(1,6)$, and $V(2,5)$. The sum of $A$ is $15$.
 Deleting $r_1$ destroys the two derivations with values $4$ and $6$,
 whereas deleting $r_2$ destroys the derivation with value $5$.
-For $\theta=8$, the set $\{r_1\}$ is a minimum-cardinality witness:
+For $\theta=8$ and $k=1$, the set $\{r_1\}$ is a minimum
+$1$-instability witness:
 the remaining sum is $5\le15-8$, while $\{r_2\}$ does not reach the
 threshold. The deletion budget concerns input tuples, not the number of
 destroyed join results.
@@ -129,8 +153,8 @@ the answer is a weighted-coverage function over destroyed derivations.
 For \agg{MAX} and \agg{MIN}, the threshold instead identifies a set
 of critical derivations that must all be destroyed, while at least one
 other derivation survives. For \agg{AVG}, the numerical change need
-not be monotone or submodular. Section~\ref{sec:theory} establishes these
-distinctions and the resulting greedy guarantees for \MIW.
+not be monotone or submodular. These distinctions organize the planned
+coverage and approximation analysis in Section~\ref{sec:theory}.
 
 \paragraph{Why bag projection is essential.}
 Let deletable $R(1),R(2)$ join with immutable $V(1,7),V(2,7)$ and project

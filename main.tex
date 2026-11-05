@@ -11,6 +11,9 @@
 \renewcommand\vldbpages{unassigned}
 \renewcommand\vldbavailabilityurl{}
 
+\usepackage{tikz}
+\usetikzlibrary{arrows.meta}
+
 % Use the class's theorem styles and one shared counter within each section.
 \theoremstyle{acmplain}
 \newtheorem{theorem}{Theorem}[section]
@@ -21,12 +24,12 @@
 \newcommand{\B}{\mathcal{B}}
 \newcommand{\Del}{D_{\mathrm{del}}}
 \newcommand{\DeltaQ}{\Delta}
-\newcommand{\MIW}{\textsc{MIW}}
+\newcommand{\MIW}{\textsc{K-MIW}}
 \newcommand{\agg}[1]{\textnormal{\texttt{#1}}}
 \DeclareMathOperator*{\argmin}{arg\,min}
 
 \begin{document}
-\title{Minimum Instability Witnesses for Aggregate Queries}
+\title{Minimum K-Instability Witness for Aggregate Queries}
 \author{Fawzi Abu Hussin}
 \affiliation{%
   \institution{Ben-Gurion University of the Negev}
@@ -43,24 +46,20 @@
 
 \begin{abstract}
 An aggregate answer can depend on a few source tuples even when its input
-contains many join results. We study minimum instability witnesses:
-smallest permitted deletion sets that move an aggregate answer across a
-prescribed directional threshold. For positive select--project--join
-queries under bag semantics, we treat COUNT, nonnegative SUM, MAX, MIN,
-and AVG with immutable tuples and explicit empty-input conventions.
-We relate COUNT to aggregated deletion propagation and specialize standard
-submodular cover to weighted SUM with a numerical precision parameter.
-For extrema, a survivor-based feasibility characterization yields a
-$\min\{r,1+\ln m\}$ approximation by combining coverage greedy and
-bounded-rank hitting set; $r$ bounds support size and $m$ counts critical
-derivations. A fixed self-join query establishes NP-completeness of each
-budget decision problem. Singleton supports are tractable for every operator, while sign separation
-yields a constructive coverage subclass for AVG. We give a unified integer
-linear formulation and exact marginal computation through incremental
-supports, query reevaluation, and suitable arithmetic provenance circuits.
-We prove when circuit derivatives equal deletion gains and explain why
-AVG's signed threshold requires separate treatment. The analysis separates
-witness-size guarantees from representation and execution costs.
+contains many join results. We study minimum $k$-instability witnesses:
+smallest valid sets of at most $k$ permitted source deletions that change
+an aggregate answer by at least a prescribed amount $\theta$. The two
+parameters separate the intervention budget from the answer-change
+threshold. For positive select--project--join queries under bag semantics,
+we treat COUNT, nonnegative SUM, MAX, MIN, and AVG with immutable tuples
+and explicit empty-input conventions. We distinguish failure to find a
+witness within budget from infeasibility for every budget. A reduction from
+Vertex Cover proves NP-completeness of the budget decision problem for a
+fixed self-join query for each aggregate. In contrast, singleton derivation
+supports admit polynomial-time exact algorithms for all five operators,
+with a sorting-based algorithm for independent-row averages. These results
+identify how source sharing and deletion restrictions shape directional
+threshold stability.
 \end{abstract}
 
 \maketitle

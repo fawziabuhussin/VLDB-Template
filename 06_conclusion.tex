@@ -1,25 +1,21 @@
 \section{Discussion and Conclusion}
 \label{sec:conclusion}
 
-Minimum instability witnesses identify the smallest permitted source
-intervention that crosses an aggregate threshold. COUNT and nonnegative
-SUM yield weighted coverage. Extrema add a survivor obligation, leading
-to a complete feasibility test and a combined $\min\{r,1+\ln m\}$
-approximation. AVG yields a signed linear threshold, with exact algorithms
-for singleton supports and a coverage guarantee under sign separation.
-The single-deletable-relation results expose the importance of source
-reuse: self-join-free queries are tractable, while two occurrences of the
-deletable relation already admit fixed-query hardness.
+Minimum $k$-instability witnesses distinguish a source-deletion budget $k$
+from a required aggregate-answer change $\theta$. The optimization seeks
+the smallest valid witness within that budget; existence is equivalent to
+$\rho_\theta\le k$, where $\rho_\theta$ is the unbudgeted minimum size.
+This separates stability at a prescribed budget from infeasibility for
+every budget.
 
-Execution depends on the representation as well as the optimization rule.
-Incremental supports, certified lazy selection, and multilinear derivatives
-compute exact coverage marginals under their stated conditions through
-different operations. Their cost bounds identify the representation
-properties relevant to choosing an execution method.
+A fixed self-join query makes the budget decision problem NP-complete for
+COUNT, nonnegative SUM, MAX, MIN, and AVG. The Vertex Cover construction
+preserves the budget exactly and handles nonempty inputs for extrema and
+averages through a permanent survivor. In contrast, singleton supports
+yield polynomial-time exact algorithms for all five operators, with a
+sorting-based algorithm for independent numeric rows.
 
-A fuller query classification, compact survivor selection, and empirical
-evaluation are natural next steps. Duplicate elimination, null values,
-grouped outputs, signed SUM, repair constraints, and non-unit costs also
-raise new modeling and algorithmic questions. The present framework
-provides explicit threshold semantics and correctness conditions against
-which such extensions can be compared.
+These results identify source sharing, designated deletability, and
+aggregate validity as central structural features of threshold stability.
+Further work will develop the coverage and approximation analysis,
+provenance-based execution methods, and a broader query classification.

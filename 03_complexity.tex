@@ -1,9 +1,14 @@
 \section{Complexity and Tractable Cases}
 \label{sec:complexity}
 
-The \emph{budget decision problem} asks whether a valid instability witness
-of size at most $k$ exists. We first establish fixed-query hardness through source sharing, then show
-that singleton supports admit exact algorithms.
+The \emph{budget decision problem} asks whether a $k$-instability witness
+from Definition~\ref{def:witness} exists for the given $(k,\theta)$.
+The optimization version additionally minimizes its size within that
+budget. We first establish fixed-query hardness through source sharing,
+then show that singleton supports admit exact algorithms. For the latter,
+one may compute the unbudgeted optimum $\rho_\theta$ and compare it
+with $k$: an optimum at most $k$ solves \MIW, while a larger optimum
+certifies that no witness exists within the budget.
 
 \begin{theorem}[Fixed-query hardness]
 \label{thm:hardness}
@@ -16,16 +21,21 @@ R(x)\Join E(x,y,A)\Join R(y).
 This holds with values in $\{0,1\}$, designated immutable tuples, and a
 self-join of $R$.
 \end{theorem}
+
+\input{figures/vertex_cover_reduction}
 \begin{proof}
 Reduce from Vertex Cover on a simple undirected graph $G=(V,E_G)$ with
-at least one edge. Orient each edge once. Create a deletable tuple $R(v)$
+at least one edge and Vertex Cover budget $k$. We use exactly the same
+budget $k$ in the \MIW\ instance. Orient each edge once. Create a deletable tuple $R(v)$
 for each vertex and an immutable tuple $E(u,v,1)$ for each oriented edge.
 There is exactly one derivation per edge, with support
 $\{R(u),R(v)\}$. A deletion set destroys every such derivation exactly
-when its vertices form a vertex cover.
+when its vertices form a vertex cover. Figure~\ref{fig:vertex-cover}
+illustrates this correspondence.
 
 For \agg{COUNT} and \agg{SUM}(A), choose $\theta=|E_G|$. The target
-is zero, so the equivalence follows directly. For \agg{MAX} and
+is zero. A vertex cover of size at most $k$ therefore exists if and only
+if the constructed instance has a $k$-instability witness. For \agg{MAX} and
 \agg{AVG}, add fresh vertices $p,q$, immutable $R(p),R(q)$, and
 immutable $E(p,q,0)$. This creates one permanently surviving zero-valued
 derivation and no additional joins. For \agg{MAX}, use $\theta=1$.
@@ -35,7 +45,8 @@ graph-edge derivation is destroyed. For \agg{MIN}, instead give all
 graph edges value zero and the permanent edge value one; choose
 $\theta=1$. Reaching minimum one again requires destroying every graph
 edge. In every construction, feasible deletion sets and vertex covers
-have the same cardinalities, and the encoding has polynomial size.
+have the same cardinalities, so the budget $k$ is preserved for every
+aggregate. The encoding has polynomial size.
 
 For membership in NP, a certificate lists at most $k$ deletable tuples.
 Evaluation of this fixed query, the aggregate, and the validity condition
@@ -45,21 +56,24 @@ problem is NP-complete for each operator.
 
 Only $R$ contains deletable tuples in this construction. Reusing that one
 relation in two atom positions is sufficient for hardness across all five
-operators. Its supports have size two, consistent with the bounded-rank
-extrema approximation in Section~\ref{sec:submod-extrema}.
+operators. Each support has size two: pairwise coupling inside a single
+deletable relation is already sufficient for this reduction.
 
 \begin{proposition}[Singleton-support coverage]
 \label{prop:modular}
-For \agg{COUNT} or nonnegative \agg{SUM}, if $|T_b|\le1$ for every
-$b$, sorting deletable tuples by their initial marginal gains and taking
-the shortest prefix reaching the threshold is optimal. Infeasibility is
-detected by the total available gain.
+For \agg{COUNT} or nonnegative \agg{SUM}, suppose $|T_b|\le1$ for
+every $b$. Sort deletable tuples by their initial marginal gains. The
+shortest prefix reaching the threshold is a minimum $k$-instability
+witness if its size is at most $k$; otherwise no witness fits the budget.
+Equivalently, feasibility is decided by the total gain of the largest
+$\min\{k,n\}$ gains.
 \end{proposition}
 \begin{proof}
 Put $a_t=\sum_{b:T_b=\{t\}}w_b$. The benefit is modular:
-$f(S)=\sum_{t\in S}a_t$. Among sets of any fixed cardinality $k$, the
-$k$ largest $a_t$ attain the greatest possible benefit. The first feasible
-prefix therefore has minimum cardinality.
+$f(S)=\sum_{t\in S}a_t$. Among sets of any fixed cardinality $j$, the
+$j$ largest $a_t$ attain the greatest possible benefit. The first feasible
+prefix therefore has minimum cardinality. If that prefix exceeds $k$,
+no set of at most $k$ deletions can reach the threshold.
 \end{proof}
 The gains can be computed in $O(M+n)$ operations from explicit singleton
 supports, followed by $O(n\log n)$ comparisons for sorting.
@@ -77,20 +91,25 @@ Proposition~\ref{prop:modular} handles COUNT and SUM. For an extremum,
 each critical singleton forces its tuple's deletion; an empty critical
 support makes the instance infeasible. The union of forced tuples is
 optimal if any derivation survives, and otherwise no valid witness exists.
+If the forced set exceeds $k$, the budgeted instance is infeasible.
 
-For AVG at target $\tau$, write $F_0=\sum_b(v_b-\tau)>0$.
+For AVG at target $\tau=\tau_{\downarrow}$, define
+$F_\tau(S)=\sum_{b\in\B(S)}(v_b-\tau)$ and write
+$F_0=F_\tau(\emptyset)>0$.
 Let $a_t$ sum $v_b-\tau$ over the derivations with $T_b=\{t\}$.
 Singleton supports give
 \[
 F_\tau(S)=F_0-\sum_{t\in S}a_t.
 \]
-Every feasible witness preserves a derivation $b_0$ with $v_{b_0}\le\tau$.
+Every valid threshold-crossing witness preserves a derivation $b_0$ with
+$v_{b_0}\le\tau$.
 Enumerate its possible support, forbid deleting that support, sort the
 remaining positive $a_t$ in descending order, and take the shortest
 prefix whose sum reaches $F_0$. This is exact for that protected domain:
 nonpositive gains never help, and the largest gains maximize benefit for
 each cardinality. Taking the smallest feasible prefix over survivors is
-therefore globally optimal. At most $n+1$ distinct singleton or empty
+therefore globally optimal before imposing the budget; compare its size
+with $k$ to solve the budgeted problem. At most $n+1$ distinct singleton or empty
 supports are protected. One initial sort and a scan per protected support
 take $O(M+n\log n+n^2)$ operations and comparisons.
 \end{proof}
@@ -109,15 +128,15 @@ arithmetic operations and comparisons, where $N$ is the total row count.
 \end{proposition}
 \begin{proof}
 Sort deletable values as $u_1\ge\cdots\ge u_n$. Let $V$ be the initial
-sum. For a fixed deletion count $k<N$, the remaining denominator is
-$N-k$, so deleting the largest $k$ values minimizes the remaining
+sum. For a fixed deletion count $j<N$, the remaining denominator is
+$N-j$, so deleting the largest $j$ values minimizes the remaining
 average. Check
 \[
-V-\sum_{i=1}^k u_i\ \le\ \tau_{\downarrow}(N-k)
+V-\sum_{i=1}^j u_i\ \le\ \tau_{\downarrow}(N-j)
 \]
-for each $k\le n$ with $k<N$, and return the first feasible prefix.
-If none succeeds, no feasible deletion set exists. One pass computes the
-initial sum and prefix sums after sorting. The restriction $k<N$
+for each $j\le\min\{k,n\}$ with $j<N$, and return the first feasible
+prefix. If none succeeds, no witness exists within budget $k$. One pass computes the
+initial sum and prefix sums after sorting. The restriction $j<N$
 ensures nonemptiness, including when every row is deletable.
 \end{proof}
 This case has no joins or shared supports. It illustrates why the failure
